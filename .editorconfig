@@ -1,0 +1,47 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{json,asmdef,yml,yaml}]
+indent_style = space
+indent_size = 4
+
+[*.cs]
+indent_style = space
+indent_size = 4
+
+# using 정렬
+dotnet_sort_system_directives_first = true
+
+# 중괄호는 새 줄에 (Unity/C# 관례)
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+
+# var는 타입이 명확할 때만
+csharp_style_var_when_type_is_apparent = true:suggestion
+csharp_style_var_for_built_in_types = false:suggestion
+
+# 이름 규칙: private 필드는 _camelCase, 인터페이스는 I 접두사
+dotnet_naming_rule.private_fields_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_underscore.style = underscore_camel
+dotnet_naming_rule.private_fields_underscore.severity = suggestion
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+dotnet_naming_style.underscore_camel.capitalization = camel_case
+dotnet_naming_style.underscore_camel.required_prefix = _
+
+dotnet_naming_rule.interfaces_prefix_i.symbols = interfaces
+dotnet_naming_rule.interfaces_prefix_i.style = prefix_i
+dotnet_naming_rule.interfaces_prefix_i.severity = suggestion
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
+dotnet_naming_style.prefix_i.capitalization = pascal_case
+dotnet_naming_style.prefix_i.required_prefix = I

@@ -9,7 +9,7 @@
 | 항목 | 내용 |
 | --- | --- |
 | 장르 | 경영 시뮬레이션 (상점 운영) |
-| 엔진 | Unity (C#) |
+| 엔진 | Unity 6.3 LTS (C#, URP) |
 | 시점 | 1인칭 3D |
 | 플랫폼 | PC (Windows), WebGL |
 | 개발 기간 | 8주 (MVP 기준) |
@@ -48,5 +48,6 @@ flowchart LR
 | [기획서 (GDD)](docs/GDD.md) | 컨셉, 핵심 루프, 재미 요소, 기능 명세 |
 | [아키텍처](docs/ARCHITECTURE.md) | 계층 구조, 이벤트 목록, 폴더 구성 |
 | [로드맵](docs/ROADMAP.md) | MVP 범위와 주차별 일정 |
+| [개발 환경 셋업](docs/SETUP.md) | Unity 버전, 프로젝트 생성 순서, 폴더 구조, 작업 규칙 |
 | [설계 결정 기록](docs/decisions/) | 주요 결정의 배경과 이유 (ADR) |
 | [트러블슈팅](docs/troubleshooting/) | 기록 방식과 해결 사례 |

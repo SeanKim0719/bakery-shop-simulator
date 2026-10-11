@@ -66,14 +66,16 @@ flowchart TB
 ## 폴더 구성
 
 ```
-Assets/
-  Scripts/
-    Data/        ScriptableObject 정의 (Recipe, Product, Customer, Furniture, LootTable)
+Assets/_Project/
+  Scripts/       BakeryShop.Runtime 어셈블리
     Core/        TimeManager, GameEvents, SaveSystem, Rng
+    Data/        ScriptableObject 정의 (Recipe, Product, Customer, Furniture, LootTable)
     Player/      PlayerController, IInteractable, HeldItem
     Systems/     Order, Production, Inventory, Price, Customer, Checkout, Loot, RecipeBook, Economy
     UI/          HUD, PC 앱 화면
   Data/          ScriptableObject 에셋 인스턴스
   Tests/
-    EditMode/    Inventory, PriceService, LootService 분포, 거스름돈 계산 등 순수 C# 테스트
+    EditMode/    BakeryShop.Tests.EditMode 어셈블리 (Inventory, PriceService, LootService 분포, 거스름돈 계산 등)
 ```
+
+전체 폴더와 어셈블리 구성은 [개발 환경 셋업](SETUP.md)을 참고한다.
