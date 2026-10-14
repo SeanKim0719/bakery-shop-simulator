@@ -46,7 +46,8 @@ flowchart LR
 | 문서 | 내용 |
 | --- | --- |
 | [기획서 (GDD)](docs/GDD.md) | 컨셉, 핵심 루프, 재미 요소, 기능 명세 |
-| [아키텍처](docs/ARCHITECTURE.md) | 계층 구조, 이벤트 목록, 폴더 구성 |
+| [아키텍처](docs/ARCHITECTURE.md) | 계층 구조, 설계 원칙, 폴더 구성 |
+| [게임 구조 설계](docs/design/README.md) | 런타임 구조, 하루 흐름, 데이터 모델, 상호작용, 손님·계산, 세이브 |
 | [로드맵](docs/ROADMAP.md) | MVP 범위와 주차별 일정 |
 | [개발 환경 셋업](docs/SETUP.md) | Unity 버전, 프로젝트 생성 순서, 폴더 구조, 작업 규칙 |
 | [설계 결정 기록](docs/decisions/) | 주요 결정의 배경과 이유 (ADR) |

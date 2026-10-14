@@ -6,20 +6,22 @@ MVP는 빵 5종, 오븐 2대, 선반 4개, 손님 성향 3종, 발주·굽기·�
 
 ## MVP 일정
 
+각 항목의 설계는 [게임 구조 설계](design/README.md)를 따른다.
+
 ### 1~2주차 — 1인칭 조작과 상호작용
 
 - [ ] Unity 프로젝트 생성, Git LFS·.gitignore 설정
-- [ ] PlayerController (이동, 시점)
-- [ ] Raycast 상호작용, `IInteractable`, 상호작용 안내 HUD
-- [ ] 물건 집기·놓기, 박스 운반
-- 완료 기준: 회색 박스 매장에서 박스를 들어 선반에 올리는 조작감이 자연스럽다
+- [ ] GameBootstrap 뼈대, PlayerInputReader, PlayerMotor (이동, 시점)
+- [ ] Interactor (Raycast), `IInteractable`, 상호작용 안내 HUD
+- [ ] Hands, `IHoldable`, 박스 들기·내려놓기
+- 완료 기준: 회색 박스 매장에서 박스를 들고 다니다 내려놓는 조작감이 자연스럽고, 벽·선반을 뚫지 않는다
 
 ### 3~4주차 — 핵심 루프 회색 박스
 
-- [ ] TimeManager, GameEvents
+- [ ] EventBus, TimeService, DayCycle
 - [ ] 발주 PC 앱, 배송 박스 스폰·개봉
 - [ ] 오븐과 품질 판정
-- [ ] 선반 슬롯 스냅, 가격표
+- [ ] 트레이 → 선반 칸 진열, 레시피별 판매가
 - [ ] NavMesh 손님 (구매만)
 - [ ] 계산대 결제 흐름
 - [ ] 정산 화면

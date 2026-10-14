@@ -57,10 +57,10 @@ Assets/
     Prefabs/
     Scenes/
     Scripts/                  BakeryShop.Runtime 어셈블리
-      Core/                   TimeManager, GameEvents, SaveSystem, Rng
+      Core/                   GameBootstrap, EventBus, TimeService, DayCycle, Rng, SaveService
       Data/                   ScriptableObject 정의
-      Player/                 PlayerController, IInteractable, HeldItem
-      Systems/                발주, 생산, 재고, 가격, 손님, 계산대, 박스, 도감, 경제
+      Player/                 PlayerInputReader, PlayerMotor, Interactor, Hands, IInteractable
+      Systems/                창고, 오븐, 선반, 가격, 발주, 박스, 도감, 손님, 계산, 경제
       UI/                     HUD, PC 앱 화면
     Tests/
       EditMode/               BakeryShop.Tests.EditMode 어셈블리
