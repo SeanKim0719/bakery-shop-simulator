@@ -1,7 +1,10 @@
 {
     "name": "BakeryShop.Runtime",
     "rootNamespace": "BakeryShop",
-    "references": [],
+    "references": [
+        "Unity.InputSystem",
+        "Unity.AI.Navigation"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

@@ -4,47 +4,28 @@
 
 | 항목 | 내용 |
 | --- | --- |
-| 엔진 | Unity 6.3 LTS (6000.3.x) |
-| 템플릿 | Universal 3D (URP) |
-| 주요 패키지 | Input System, AI Navigation, Test Framework (템플릿 기본 포함) |
+| 엔진 | Unity 6.6 (`6000.6.7f1`) — 팀 전체가 이 버전으로 고정 |
+| 템플릿 | Universal 3D (URP 17.6) |
+| 주요 패키지 | Input System 1.20, AI Navigation 2.0, Test Framework (내장) |
 | IDE | Visual Studio 2022 또는 JetBrains Rider |
-| 버전 관리 | Git + Git LFS |
+| 버전 관리 | Git + Git LFS, Sourcetree |
 
-## 처음 한 번: Unity 프로젝트 생성
+에디터 버전을 올릴 때는 `ProjectSettings/ProjectVersion.txt`가 바뀌므로, 버전 변경만 따로 커밋하고 이 표도 함께 고친다.
 
-레포에는 스크립트 폴더와 문서만 있고, Unity가 만드는 `Packages/`, `ProjectSettings/`는 아직 없다. Unity Hub로 프로젝트를 만든 뒤 그 폴더에 레포를 붙이는 순서로 진행한다. Unity Hub는 비어 있지 않은 폴더에 새 프로젝트를 만들지 못하기 때문이다.
+## 프로젝트 받기 (새 PC에서, 또는 다시 받을 때)
 
-1. **Unity Hub에서 프로젝트 생성**
-   - Installs에서 Unity 6.3 LTS 설치 (모듈: Windows Build Support, WebGL Build Support)
-   - New project → **Universal 3D** 템플릿
-   - Project name: `bakery-shop-simulator`, Location: 원하는 작업 폴더
-   - 생성이 끝나면 Unity 에디터를 닫는다
+1. Unity Hub → Installs에서 **6000.6.7f1** 설치 (모듈: Windows Build Support, WebGL Build Support)
+2. Sourcetree → **Clone** → `https://github.com/SeanKim0719/bakery-shop-simulator.git`
+   - Git LFS 설치 여부를 물으면 "예"
+3. Unity Hub → **Add → Add project from disk** → 클론한 레포 폴더 (레포 폴더 자체가 Unity 프로젝트 폴더)
+4. 처음 열 때 `Library`를 새로 만드느라 몇 분 걸린다
+5. 확인
+   - Console에 컴파일 에러가 없는지
+   - Window → General → Test Runner → EditMode → Run All → `SetupSmokeTests` 2개 통과
 
-2. **생성된 폴더에 레포 연결** (Git Bash 또는 터미널, 프로젝트 폴더 안에서)
+### 주의: 레포 폴더 = Unity 프로젝트 폴더
 
-   ```bash
-   git lfs install
-   git init -b main
-   git remote add origin https://github.com/SeanKim0719/bakery-shop-simulator.git
-   git pull origin main
-   ```
-
-   `git lfs install`은 반드시 첫 커밋 전에 실행한다. 늦으면 텍스처·모델이 일반 파일로 커밋되어 나중에 히스토리를 정리해야 한다.
-
-3. **Unity로 다시 열어 확인**
-   - Console에 컴파일 에러가 없는지 확인
-   - Window → General → Test Runner → EditMode → Run All → `SetupSmokeTests` 2개 통과 확인
-   - Edit → Project Settings → Player에서 Company Name, Product Name 설정
-   - (선택) 템플릿 예제인 `Assets/TutorialInfo`, `Assets/Readme.asset` 삭제
-
-4. **Unity가 생성한 파일 커밋**
-
-   ```bash
-   git add -A
-   git status        # Library/, Temp/ 가 목록에 없는지 확인
-   git commit -m "chore: Unity 6.3 프로젝트 생성 (URP 템플릿)"
-   git push -u origin main
-   ```
+`.gitignore`는 `/[Ll]ibrary/`처럼 **레포 맨 위 기준**으로 작성되어 있다. Unity 프로젝트를 레포 안의 하위 폴더에 만들면 그 폴더의 `Library/`가 제외되지 않아, 수백 MB의 캐시가 커밋되고 GitHub가 100MB 초과 파일로 푸시를 거절한다 (2026-10-22 실제로 겪은 문제). 커밋 전에 Sourcetree 파일 상태에 `Library`, `Temp`, `Logs`, `UserSettings`가 보이면 커밋하지 않는다.
 
 ## 폴더 구조
 
@@ -79,7 +60,7 @@ Assets/
 
 - 스크립트 수정 시 해당 어셈블리만 다시 컴파일되어 반복 속도가 빨라진다.
 - 테스트 어셈블리는 `InternalsVisibleTo`로 Runtime의 internal 멤버에 접근할 수 있다. 규칙 로직을 public으로 열지 않고 테스트하기 위함이다.
-- 패키지 코드를 쓰기 시작하면 Runtime asmdef의 References에 추가한다. 예: PlayerController에서 Input System을 쓰면 `Unity.InputSystem`, NavMeshSurface를 쓰면 `Unity.AI.Navigation`.
+- Runtime 어셈블리는 `Unity.InputSystem`, `Unity.AI.Navigation`을 참조한다. 다른 패키지 코드를 쓰기 시작하면 Runtime asmdef의 References에 추가한다.
 
 ## 작업 규칙
 

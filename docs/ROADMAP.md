@@ -10,7 +10,7 @@ MVP는 빵 5종, 오븐 2대, 선반 4개, 손님 성향 3종, 발주·굽기·�
 
 ### 1~2주차 — 1인칭 조작과 상호작용
 
-- [ ] Unity 프로젝트 생성, Git LFS·.gitignore 설정
+- [x] Unity 프로젝트 생성, Git LFS·.gitignore 설정
 - [ ] GameBootstrap 뼈대, PlayerInputReader, PlayerMotor (이동, 시점)
 - [ ] Interactor (Raycast), `IInteractable`, 상호작용 안내 HUD
 - [ ] Hands, `IHoldable`, 박스 들기·내려놓기
