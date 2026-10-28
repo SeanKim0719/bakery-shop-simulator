@@ -31,6 +31,11 @@ namespace BakeryShop.Player
         private Vector3 _placePosition;
         private Quaternion _placeRotation;
 
+        // Scene 뷰 디버그 표시용: 이번 프레임에 검사한 내려놓기 상자와 결과.
+        private bool _hasPlacementCandidate;
+        private bool _placementValid;
+        private Vector3 _placementHalfExtents;
+
         public InteractionOption Current => _current;
 
         public event Action<InteractionOption> OptionChanged;
@@ -78,6 +83,7 @@ namespace BakeryShop.Player
             var context = new InteractionContext(_hands);
             IInteractable target = null;
             bool canPlace = false;
+            _hasPlacementCandidate = false;
 
             if (Physics.Raycast(_viewOrigin.position, _viewOrigin.forward, out RaycastHit hit, _reach, _raycastMask, QueryTriggerInteraction.Ignore))
             {
@@ -90,6 +96,10 @@ namespace BakeryShop.Player
                     _placePosition = hit.point + Vector3.up * (held.HalfExtents.y + _placementLift);
                     _placeRotation = Quaternion.Euler(0f, CurrentYaw(), 0f);
                     canPlace = _hands.CanPlace(_placePosition, _placeRotation);
+
+                    _hasPlacementCandidate = true;
+                    _placementValid = canPlace;
+                    _placementHalfExtents = held.HalfExtents;
                 }
             }
 
@@ -134,6 +144,20 @@ namespace BakeryShop.Player
 
             _current = option;
             OptionChanged?.Invoke(option);
+        }
+
+        private void OnDrawGizmos()
+        {
+            // 박스를 든 채 윗면을 보면, 내려놓을 자리를 Scene 뷰에 초록(빈 곳) / 빨강(막힘) 상자로 그린다.
+            if (!_hasPlacementCandidate)
+            {
+                return;
+            }
+
+            Gizmos.color = _placementValid ? Color.green : Color.red;
+            Gizmos.matrix = Matrix4x4.TRS(_placePosition, _placeRotation, Vector3.one);
+            Gizmos.DrawWireCube(Vector3.zero, _placementHalfExtents * 2f);
+            Gizmos.matrix = Matrix4x4.identity;
         }
     }
 }

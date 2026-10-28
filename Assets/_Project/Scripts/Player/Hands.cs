@@ -6,7 +6,7 @@ namespace BakeryShop.Player
 {
     /// <summary>
     /// 플레이어가 들고 있는 물건 하나를 관리한다. 들기, 지정한 자리에 내려놓기, 앞에 떨어뜨리기.
-    /// - 내려놓기 전에 그 자리가 비어 있는지 검사해서 벽이나 다른 물건 속에 박히지 않게 한다.
+    /// - 내려놓기 전에 그 자리가 비어 있는지 검사해서 벽·다른 물건·플레이어 몸에 박히지 않게 한다.
     /// - 들고 있는 동안 앞이 막히면 물건을 몸 쪽으로 당겨 벽·가구에 파고들지 않게 한다.
     /// </summary>
     public sealed class Hands : MonoBehaviour, IHands
@@ -34,6 +34,7 @@ namespace BakeryShop.Player
         [Tooltip("막힘이 풀렸을 때 원래 거리로 돌아가는 속도 (m/s)")]
         [SerializeField, Min(0.1f)] private float _returnSpeed = 3f;
 
+        private CharacterController _body;
         private Vector3 _restDirection;
         private float _restDistance;
         private float _currentDistance;
@@ -45,6 +46,8 @@ namespace BakeryShop.Player
 
         private void Awake()
         {
+            _body = GetComponent<CharacterController>();
+
             if (_holdAnchor != null)
             {
                 Vector3 rest = _holdAnchor.localPosition;
@@ -74,6 +77,7 @@ namespace BakeryShop.Player
         }
 
         /// <summary>손에 든 물건을 이 자세로 놓을 공간이 비어 있는지.</summary>
+        /// <param name="rotation">좌우 회전만 있는 자세여야 한다.</param>
         public bool CanPlace(Vector3 position, Quaternion rotation)
         {
             if (Held == null)
@@ -81,10 +85,16 @@ namespace BakeryShop.Player
                 return false;
             }
 
-            // 들고 있는 물건은 충돌이 꺼져 있어서 검사에 자기 자신이 걸리지 않는다.
-            // 플레이어 캡슐은 걸리므로 발밑에 내려놓아 플레이어 몸에 박히는 일도 막힌다.
-            Vector3 halfExtents = Held.HalfExtents * _overlapTolerance;
-            return !Physics.CheckBox(position, halfExtents, rotation, _placementBlockers, QueryTriggerInteraction.Ignore);
+            Vector3 halfExtents = Held.HalfExtents;
+
+            // 1. 플레이어 몸: 스킨까지 포함한 캡슐과 직접 비교한다 (PlacementMath 참고).
+            if (OverlapsPlayer(position, rotation, halfExtents))
+            {
+                return false;
+            }
+
+            // 2. 벽·가구·다른 물건: 물리 쿼리. 들고 있는 물건은 충돌이 꺼져 있어서 자기 자신은 걸리지 않는다.
+            return !Physics.CheckBox(position, halfExtents * _overlapTolerance, rotation, _placementBlockers, QueryTriggerInteraction.Ignore);
         }
 
         public bool TryPlace(Vector3 position, Quaternion rotation)
@@ -103,7 +113,7 @@ namespace BakeryShop.Player
         }
 
         /// <summary>
-        /// 들고 있는 위치에서 그대로 놓아 떨어뜨린다. 벽 속처럼 공간이 막혀 있으면 놓지 않는다.
+        /// 들고 있는 위치에서 그대로 놓아 떨어뜨린다. 벽 속이나 몸과 겹치는 위치면 놓지 않는다.
         /// </summary>
         /// <param name="yaw">물건이 바라볼 좌우 각도. 보통 플레이어가 바라보는 방향.</param>
         public bool TryDrop(float yaw)
@@ -116,6 +126,19 @@ namespace BakeryShop.Player
             return TryPlace(_holdAnchor.position, Quaternion.Euler(0f, yaw, 0f));
         }
 
+        private bool OverlapsPlayer(Vector3 position, Quaternion rotation, Vector3 halfExtents)
+        {
+            if (_body == null)
+            {
+                return false;
+            }
+
+            Vector3 capsuleCenter = transform.TransformPoint(_body.center);
+            float inflatedRadius = _body.radius + _body.skinWidth;
+            return PlacementMath.BoxOverlapsUprightCapsule(
+                position, rotation.eulerAngles.y, halfExtents,
+                capsuleCenter, _body.height, inflatedRadius);
+        }
 
         private void UpdateHoldDistance(float deltaTime)
         {
@@ -152,6 +175,22 @@ namespace BakeryShop.Player
             {
                 _holdAnchor.localPosition = _restDirection * _restDistance;
             }
+        }
+
+        private void OnDrawGizmos()
+        {
+            // 들고 있을 때 "몸으로 보는 캡슐(스킨 포함)"을 Scene 뷰에 노란 선으로 그린다.
+            if (Held == null || _body == null)
+            {
+                return;
+            }
+
+            Vector3 center = transform.TransformPoint(_body.center);
+            float radius = _body.radius + _body.skinWidth;
+            float segmentHalf = Mathf.Max(0f, _body.height * 0.5f - radius);
+            Gizmos.color = Color.yellow;
+            Gizmos.DrawWireSphere(center + Vector3.up * segmentHalf, radius);
+            Gizmos.DrawWireSphere(center - Vector3.up * segmentHalf, radius);
         }
     }
 }
