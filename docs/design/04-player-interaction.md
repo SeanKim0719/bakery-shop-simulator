@@ -18,15 +18,16 @@ flowchart LR
 | `PlayerInputReader` | Input System 액션을 읽어 다른 컴포넌트에 전달. 입력 모드 전환 (게임 / UI) |
 | `PlayerMotor` | CharacterController 이동, 마우스 시점 |
 | `Interactor` | 매 프레임 Raycast로 대상을 찾고, 안내 문구를 HUD에 넘기고, 입력이 오면 상호작용 실행 |
-| `Hands` | 들고 있는 물건 하나 (`IHoldable`), 들기·내려놓기·던지기 |
+| `Hands` | 들고 있는 물건 하나 (`IHoldable`), 들기·내려놓기·떨어뜨리기, 내려놓을 공간 검사 |
+| `InteractionResolver` | 바라보는 대상과 손 상태로 "지금 E를 누르면 무엇을 하는지"를 정하는 순수 함수. 테스트 대상 |
 
 ## 인터페이스
 
 ```csharp
 public readonly struct InteractionContext
 {
-    public readonly IHoldable Held;      // 아무것도 안 들었으면 null
-    public readonly Hands Hands;
+    public readonly IHands Hands;
+    public IHoldable Held => Hands?.Held;   // 아무것도 안 들었으면 null
 }
 
 public interface IInteractable
@@ -39,10 +40,26 @@ public interface IInteractable
 public interface IHoldable
 {
     HoldableKind Kind { get; }           // Box, Tray
-    void OnPickedUp(Hands hands);
+    string DisplayName { get; }
+    Vector3 HalfExtents { get; }         // 내려놓을 공간 검사용
+    void OnPickedUp(Transform holdAnchor);
     void OnDropped(Vector3 position, Quaternion rotation);
 }
+
+public interface IHands                  // 대상이 손에 접근할 때 쓰는 최소 인터페이스
+{
+    IHoldable Held { get; }
+    bool TryPickUp(IHoldable item);
+}
 ```
+
+대상은 `Hands` 컴포넌트가 아니라 `IHands`만 안다. 그래서 `InteractionResolver` 같은 판단 로직을 가짜 손으로 테스트할 수 있다.
+
+판단 우선순위 (`InteractionResolver.Resolve`):
+
+1. 바라보는 대상이 안내 문구를 내놓으면 그 대상과 상호작용
+2. 아니면, 무언가 들고 있고 바라보는 곳이 비어 있는 윗면이면 내려놓기 (박스 위를 보면 쌓기)
+3. 둘 다 아니면 아무것도 안 함
 
 - `GetPrompt`가 `null`이 아닌 경우에만 상호작용할 수 있다. 판단과 안내 문구를 한 메서드에서 만들어, "안내는 뜨는데 실제로는 안 되는" 불일치를 막는다.
 - 새 상호작용 대상을 추가해도 `Interactor`는 바뀌지 않는다.
@@ -69,15 +86,38 @@ public interface IHoldable
 
 ## 입력
 
-Input System 액션 맵 두 개를 쓴다.
+Input System 에셋은 `Assets/_Project/Input/BakeryControls.inputactions`이다.
 
 | 맵 | 액션 | 기본 키 |
 | --- | --- | --- |
-| `Player` | Move, Look, Interact, Drop, Pause | WASD, 마우스, E / 좌클릭, G, Esc |
-| `UI` | Navigate, Submit, Cancel, Point, Click | 기본 UI 입력 |
+| `Player` | Move, Look, Interact, Drop | WASD, 마우스, E / 좌클릭, G |
+| `Global` | Pause | Esc. 입력 모드와 상관없이 항상 켜져 있다 |
+| `UI` (패널 작업 때 추가) | Navigate, Submit, Cancel, Point, Click | 기본 UI 입력 |
+
+Pause를 `Player` 맵에 두면 UI 모드에서 `Player` 맵이 꺼질 때 같이 꺼져서, 메뉴를 Esc로 닫을 수 없다. 그래서 항상 켜져 있는 `Global` 맵으로 분리했다.
 
 PC 앱·오븐 패널·계산 패널이 열리면 `UI` 맵으로 바꾸고 커서를 풀며, 닫으면 `Player` 맵과 커서 잠금으로 돌아간다. 전환은 `PlayerInputReader.SetMode()` 한 곳에서만 한다. 패널마다 따로 커서를 건드리면 "패널을 닫았는데 커서가 안 잠기는" 문제가 생기기 쉽다.
 
 ## 들고 있는 물건의 물리
 
-손에 든 물건은 Rigidbody를 **kinematic**으로 바꾸고 카메라 앞 고정 위치를 따라가게 한다. 내려놓으면 다시 물리를 켠다. 들고 있는 동안에는 별도 레이어로 두어 벽·선반과 충돌하지 않게 한다. 이 부분은 [트러블슈팅 후보](../troubleshooting/README.md) 1번과 연결되므로 처음 구현할 때부터 전후를 기록한다.
+손에 든 물건은 Rigidbody를 **kinematic**으로 바꾸고 충돌을 끈 채 카메라 앞 `HoldAnchor`를 따라가게 한다. 충돌을 켜 두면 플레이어 캡슐을 밀어내거나 벽에 걸리기 때문이다. 내려놓으면 다시 물리를 켠다.
+
+### 벽·가구에 파고들지 않게: 당겨오기
+
+충돌을 끄면 플레이어 몸은 벽 앞에서 멈춰도 0.9m 앞의 물건은 벽을 통과한다 (1주차 플레이 테스트에서 실제로 확인). 매 프레임 `LateUpdate`에서 카메라 → 원래 위치 방향으로 물건 크기의 `BoxCast`를 하고, 막히면 그 바로 앞까지 물건을 몸 쪽으로 당긴다.
+
+- 막히면 **즉시** 당기고, 풀리면 **일정 속도로** 돌아간다 (`HoldDistanceMath`). 즉시 돌아가면 벽 모서리를 지날 때 물건이 튀어 보인다.
+- 최소 거리(0.4m)보다 가까이는 당기지 않는다. 이보다 더 막히면 조금 파고드는 것은 허용한다.
+- 검토한 다른 방법: 오버레이 카메라(벽 속에 있어도 벽 앞에 그려져 "뚫지 않는다" 기준을 만족하지 못함), 플레이어 이동 막기(CharacterController에 콜라이더를 덧붙일 수 없어 구현 부담이 큼).
+
+### 플레이어 몸에 내려놓지 않게: 캡슐 직접 검사
+
+`Physics.CheckBox`는 CharacterController의 반지름만 보고 스킨(`skinWidth`)은 보지 않는다. 또 상자를 0.95배로 줄여 검사한다. 그래서 몸 가장자리에 걸치게 내려놓을 수 있었고, 그때 플레이어가 상자 위로 올라탄 것으로 본다 (트러블슈팅 가설 1. Scene 뷰 디버그 표시로 확인 예정). 플레이어 몸만큼은 물리 쿼리에 맡기지 않고, **반지름 + 스킨** 크기의 캡슐과 상자가 겹치는지를 `PlacementMath`로 직접 계산해 막는다. 벽·가구·다른 물건은 그대로 물리 쿼리로 검사한다.
+
+### 디버그 표시 (Scene 뷰)
+
+| 표시 | 의미 |
+| --- | --- |
+| 초록 상자 | 지금 E를 누르면 이 자리에 내려놓을 수 있음 |
+| 빨강 상자 | 이 자리는 막혀 있음 |
+| 노란 구 2개 | 공간 검사가 "플레이어 몸"으로 보는 캡슐 (스킨 포함) |
