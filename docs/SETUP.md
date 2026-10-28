@@ -23,6 +23,17 @@
    - Console에 컴파일 에러가 없는지
    - Window → General → Test Runner → EditMode → Run All → `SetupSmokeTests` 2개 통과
 
+### 그레이박스 확인 씬
+
+메뉴 **BakeryShop → 그레이박스 씬 만들기 (1주차)**를 누르면 `Assets/_Project/Scenes/Greybox_Week1.unity`가 만들어진다. 바닥·벽·선반·테이블·턱, 배송 박스 5개, 플레이어, HUD가 연결까지 끝난 상태로 배치된다. 씬 연결을 손으로 하면 빠뜨리기 쉬워서 코드로 고정했다. 씬을 손으로 고친 뒤 다시 실행하면 덮어쓰니 주의한다.
+
+| 키 | 동작 |
+| --- | --- |
+| WASD / 마우스 | 이동 / 시점 |
+| E 또는 좌클릭 | 들기, 바라보는 윗면에 내려놓기 (박스 위면 쌓기) |
+| G | 들고 있는 위치에서 떨어뜨리기 |
+| Esc | 커서 풀기 / 다시 잠그기 |
+
 ### 주의: 레포 폴더 = Unity 프로젝트 폴더
 
 `.gitignore`는 `/[Ll]ibrary/`처럼 **레포 맨 위 기준**으로 작성되어 있다. Unity 프로젝트를 레포 안의 하위 폴더에 만들면 그 폴더의 `Library/`가 제외되지 않아, 수백 MB의 캐시가 커밋되고 GitHub가 100MB 초과 파일로 푸시를 거절한다 (2026-10-22 실제로 겪은 문제). 커밋 전에 Sourcetree 파일 상태에 `Library`, `Temp`, `Logs`, `UserSettings`가 보이면 커밋하지 않는다.
@@ -40,9 +51,12 @@ Assets/
     Scripts/                  BakeryShop.Runtime 어셈블리
       Core/                   GameBootstrap, EventBus, TimeService, DayCycle, Rng, SaveService
       Data/                   ScriptableObject 정의
-      Player/                 PlayerInputReader, PlayerMotor, Interactor, Hands, IInteractable
+      Interaction/            IInteractable, IHoldable, IHands, InteractionResolver, HoldableObject
+      Player/                 PlayerInputReader, PlayerMotor, Interactor, Hands
       Systems/                창고, 오븐, 선반, 가격, 발주, 박스, 도감, 손님, 계산, 경제
       UI/                     HUD, PC 앱 화면
+    Input/                    BakeryControls.inputactions
+    Editor/                   BakeryShop.Editor 어셈블리 (그레이박스 씬 빌더 등 에디터 도구)
     Tests/
       EditMode/               BakeryShop.Tests.EditMode 어셈블리
   ThirdParty/                 에셋 스토어 등 외부 에셋 (직접 수정하지 않음)
@@ -57,10 +71,11 @@ Assets/
 | --- | --- | --- |
 | `BakeryShop.Runtime` | `Assets/_Project/Scripts` | 게임 코드 전체 |
 | `BakeryShop.Tests.EditMode` | `Assets/_Project/Tests/EditMode` | 순수 C# 로직 단위 테스트 |
+| `BakeryShop.Editor` | `Assets/_Project/Editor` | 에디터 전용 도구. 빌드에 포함되지 않음 |
 
 - 스크립트 수정 시 해당 어셈블리만 다시 컴파일되어 반복 속도가 빨라진다.
 - 테스트 어셈블리는 `InternalsVisibleTo`로 Runtime의 internal 멤버에 접근할 수 있다. 규칙 로직을 public으로 열지 않고 테스트하기 위함이다.
-- Runtime 어셈블리는 `Unity.InputSystem`, `Unity.AI.Navigation`을 참조한다. 다른 패키지 코드를 쓰기 시작하면 Runtime asmdef의 References에 추가한다.
+- Runtime 어셈블리는 `Unity.InputSystem`, `Unity.AI.Navigation`, `UnityEngine.UI`를 참조한다. 다른 패키지 코드를 쓰기 시작하면 Runtime asmdef의 References에 추가한다.
 
 ## 작업 규칙
 

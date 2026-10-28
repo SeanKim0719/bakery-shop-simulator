@@ -18,15 +18,16 @@ flowchart LR
 | `PlayerInputReader` | Input System 액션을 읽어 다른 컴포넌트에 전달. 입력 모드 전환 (게임 / UI) |
 | `PlayerMotor` | CharacterController 이동, 마우스 시점 |
 | `Interactor` | 매 프레임 Raycast로 대상을 찾고, 안내 문구를 HUD에 넘기고, 입력이 오면 상호작용 실행 |
-| `Hands` | 들고 있는 물건 하나 (`IHoldable`), 들기·내려놓기·던지기 |
+| `Hands` | 들고 있는 물건 하나 (`IHoldable`), 들기·내려놓기·떨어뜨리기, 내려놓을 공간 검사 |
+| `InteractionResolver` | 바라보는 대상과 손 상태로 "지금 E를 누르면 무엇을 하는지"를 정하는 순수 함수. 테스트 대상 |
 
 ## 인터페이스
 
 ```csharp
 public readonly struct InteractionContext
 {
-    public readonly IHoldable Held;      // 아무것도 안 들었으면 null
-    public readonly Hands Hands;
+    public readonly IHands Hands;
+    public IHoldable Held => Hands?.Held;   // 아무것도 안 들었으면 null
 }
 
 public interface IInteractable
@@ -39,10 +40,26 @@ public interface IInteractable
 public interface IHoldable
 {
     HoldableKind Kind { get; }           // Box, Tray
-    void OnPickedUp(Hands hands);
+    string DisplayName { get; }
+    Vector3 HalfExtents { get; }         // 내려놓을 공간 검사용
+    void OnPickedUp(Transform holdAnchor);
     void OnDropped(Vector3 position, Quaternion rotation);
 }
+
+public interface IHands                  // 대상이 손에 접근할 때 쓰는 최소 인터페이스
+{
+    IHoldable Held { get; }
+    bool TryPickUp(IHoldable item);
+}
 ```
+
+대상은 `Hands` 컴포넌트가 아니라 `IHands`만 안다. 그래서 `InteractionResolver` 같은 판단 로직을 가짜 손으로 테스트할 수 있다.
+
+판단 우선순위 (`InteractionResolver.Resolve`):
+
+1. 바라보는 대상이 안내 문구를 내놓으면 그 대상과 상호작용
+2. 아니면, 무언가 들고 있고 바라보는 곳이 비어 있는 윗면이면 내려놓기 (박스 위를 보면 쌓기)
+3. 둘 다 아니면 아무것도 안 함
 
 - `GetPrompt`가 `null`이 아닌 경우에만 상호작용할 수 있다. 판단과 안내 문구를 한 메서드에서 만들어, "안내는 뜨는데 실제로는 안 되는" 불일치를 막는다.
 - 새 상호작용 대상을 추가해도 `Interactor`는 바뀌지 않는다.
@@ -69,12 +86,15 @@ public interface IHoldable
 
 ## 입력
 
-Input System 액션 맵 두 개를 쓴다.
+Input System 에셋은 `Assets/_Project/Input/BakeryControls.inputactions`이다.
 
 | 맵 | 액션 | 기본 키 |
 | --- | --- | --- |
-| `Player` | Move, Look, Interact, Drop, Pause | WASD, 마우스, E / 좌클릭, G, Esc |
-| `UI` | Navigate, Submit, Cancel, Point, Click | 기본 UI 입력 |
+| `Player` | Move, Look, Interact, Drop | WASD, 마우스, E / 좌클릭, G |
+| `Global` | Pause | Esc. 입력 모드와 상관없이 항상 켜져 있다 |
+| `UI` (패널 작업 때 추가) | Navigate, Submit, Cancel, Point, Click | 기본 UI 입력 |
+
+Pause를 `Player` 맵에 두면 UI 모드에서 `Player` 맵이 꺼질 때 같이 꺼져서, 메뉴를 Esc로 닫을 수 없다. 그래서 항상 켜져 있는 `Global` 맵으로 분리했다.
 
 PC 앱·오븐 패널·계산 패널이 열리면 `UI` 맵으로 바꾸고 커서를 풀며, 닫으면 `Player` 맵과 커서 잠금으로 돌아간다. 전환은 `PlayerInputReader.SetMode()` 한 곳에서만 한다. 패널마다 따로 커서를 건드리면 "패널을 닫았는데 커서가 안 잠기는" 문제가 생기기 쉽다.
 
