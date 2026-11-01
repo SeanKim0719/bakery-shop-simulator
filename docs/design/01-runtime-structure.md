@@ -129,6 +129,7 @@ public sealed class EventBus
 | `PriceChanged` | 레시피 ID, 가격 | PricingService |
 | `CustomerEntered` / `CustomerLeft` | 손님 ID, 떠난 이유(구매 완료·원하는 빵 없음·너무 비쌈·대기 초과) | CustomerSystem |
 | `DemandMissed` | 레시피 ID (손님이 찾았지만 선반에 없던 빵) | CustomerSystem |
+| `TheftAttempted` / `TheftResolved` (MVP 이후) | 손님 ID, 레시피 ID, 결과(도주 성공·붙잡힘), 금액 ([07 문서](07-theft-and-disorder.md)) | CustomerSystem |
 | `SaleCompleted` | 손님 ID, 품목, 합계, 받은 돈, 거스름돈, 실수 여부 | CheckoutService |
 | `BreadDiscarded` | 레시피 ID, 개수, 손실액 | ShelfSystem, OvenSystem |
 | `DaySettled` | 일일 리포트 | EconomyLedger |

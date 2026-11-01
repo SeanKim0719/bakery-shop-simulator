@@ -10,6 +10,7 @@
 | [04. 플레이어와 상호작용](04-player-interaction.md) | Interactor·Hands·IInteractable, 상호작용 표, 입력 모드 |
 | [05. 손님과 계산](05-customer-and-checkout.md) | 손님 FSM, 구매 판단, 계산 줄, 결제 세션, 평판 |
 | [06. 세이브](06-save.md) | 저장 시점, 세이브 형식, 불러오기 순서, 버전 변환 |
+| [07. 절도·보안·매장 어지럽힘](07-theft-and-disorder.md) | MVP 이후 확장: 절도 손님, 보안요원·설비, 진열 흐트러뜨리기 |
 
 ## 설계를 관통하는 원칙
 
@@ -27,6 +28,7 @@
 | [0004](../decisions/0004-model-view-split.md) | 순수 C# 모델과 MonoBehaviour 뷰 분리 |
 | [0005](../decisions/0005-save-between-days.md) | 저장은 하루와 하루 사이에만 |
 | [0006](../decisions/0006-day-based-freshness.md) | 신선도를 실시간 대신 날짜 단위로 |
+| [0007](../decisions/0007-theft-security-after-mvp.md) | 절도·보안은 MVP 이후로, 진열장 파손 대신 흐트러뜨리기 |
 
 ## 구현 순서와의 연결
 

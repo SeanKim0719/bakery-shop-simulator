@@ -29,6 +29,8 @@ stateDiagram-v2
 
 각 상태는 `IState`(`Enter`, `Tick`, `Exit`)를 구현한다. 하루 단계 상태 기계, 결제 세션과 같은 패턴이다.
 
+MVP 이후 절도 확장에서 `Concealing`, `Fleeing`, `Caught` 상태가 추가된다 ([07 문서](07-theft-and-disorder.md)). 상태를 추가하는 것만으로 동작하도록, 상태 전환은 각 상태의 `Tick`이 다음 상태를 돌려주는 방식으로 만들고 `CustomerBrain`에 상태별 분기를 두지 않는다.
+
 ## 엔진 경계: `ICustomerBody`
 
 ```csharp

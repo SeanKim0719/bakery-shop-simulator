@@ -86,6 +86,8 @@ flowchart LR
 | `priceSensitivity` | AnimationCurve | x = 가격/시세, y = 구매 의향 배율 |
 | `patienceSeconds` | float | 계산 줄에서 기다리는 한계 |
 | `cashRatio` | float | 현금 결제 비율 (나머지는 카드) |
+| `theftChance` | float | 절도 성향 (0~1). MVP에서는 0, 확장 때 사용 ([07 문서](07-theft-and-disorder.md)) |
+| `messiness` | float | 진열을 흐트러뜨리는 성향 (0~1). MVP에서는 0, 확장 때 사용 |
 
 ### 설정
 
