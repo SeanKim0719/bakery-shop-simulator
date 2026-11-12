@@ -21,35 +21,61 @@
   "version": 1,
   "day": 3,
   "money": 152300,
-  "reputation": 54,
-  "rngState": 2463534242,
+  "reputation": 536,
+  "xp": 131,
+  "customerRngState": 2463534242,
+  "lootRngState": 88172645,
   "nextEntityId": 1043,
-  "prices": [{ "recipeId": "bread.croissant", "price": 3800 }],
+  "unlocks": ["unlock.recipe.saltbutter", "unlock.tray.4"],
+  "prices": [{ "recipeId": "bread.croissant", "price": 3300 }],
   "storage": [{ "ingredientId": "ing.butter", "count": 12 }],
-  "unlockedRecipes": ["bread.white", "bread.croissant", "bread.redbean"],
-  "discoveredRecipes": ["bread.truffle_salt"],
-  "pity": [{ "lootTableId": "loot.basic", "count": 4 }],
+  "knownRecipes": ["bread.white", "bread.redbean", "bread.croissant", "bread.saltbutter"],
+  "foundKeyIngredients": ["ing.almond"],
+  "experiments": [
+    { "keyIngredientId": "ing.almond", "tried": ["ing.flour", "ing.milk"], "matched": 1 }
+  ],
+  "pity": [{ "lootTableId": "loot.basic", "count": 2 }],
+  "soldCounts": [{ "recipeId": "bread.croissant", "count": 31 }],
   "shelves": [
     {
       "id": "shelf.01",
       "slots": [
         { "recipeId": "bread.croissant", "breads": [{ "quality": 2, "daysOld": 1 }] },
+        { "recipeId": "", "breads": [] },
         { "recipeId": "", "breads": [] }
       ]
     }
   ],
   "worldItems": [
     { "entityId": 1040, "kind": "Box", "productId": "product.box.basic",
-      "position": { "x": 1.2, "y": 0.0, "z": -3.4 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 } },
-    { "entityId": 1041, "kind": "Tray", "tray": { "recipeId": "bread.white", "breads": [] },
-      "position": { "x": 0.5, "y": 0.9, "z": 2.0 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 } }
+      "position": { "x": -4.2, "y": 0.25, "z": -7.3 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 } },
+    { "entityId": 1041, "kind": "Tray", "tray": { "recipeId": "bread.white", "breads": [{ "quality": 2, "daysOld": 1 }] },
+      "position": { "x": -2.6, "y": 0.95, "z": 5.5 }, "rotation": { "x": 0, "y": 0, "z": 0, "w": 1 } }
   ],
-  "history": [{ "day": 2, "revenue": 84000, "cost": 31000, "waste": 6500, "missedDemand": 7 }]
+  "objectivesDone": 6,
+  "demoGoalShown": false,
+  "settings": { "showChange": true },
+  "history": [
+    { "day": 2, "revenue": 77200, "orderSpend": 21800, "rent": 10000, "net": 45400, "customersPaid": 16, "wasteCount": 1, "missedDemand": 2 }
+  ]
 }
 ```
 
-- `history`는 지난 일일 리포트 요약이다. 통계 그래프와 "어제보다 나아졌는지" 비교에 쓴다.
+| 항목 | 비고 |
+| --- | --- |
+| `xp` | 레벨은 저장하지 않고 경험치에서 계산한다 |
+| `unlocks` | 구매한 해금 ID. 오븐·진열대의 잠금 상태와 전체 트레이 수는 여기서 계산한다 |
+| `knownRecipes` | 라이선스를 샀거나 발견한 레시피 |
+| `foundKeyIngredients`, `experiments` | 도감의 힌트 상태와 실험 기록 |
+| `pity` | 확률표별 연속 꽝 횟수 |
+| `customerRngState`, `lootRngState` | 난수 스트림 두 개의 상태 |
+| `worldItems` | 바닥·작업대에 놓인 박스와 트레이. 빈 트레이 수 = 전체 트레이 − 여기 있는 트레이 수 |
+| `objectivesDone` | 목표 리스트에서 완료한 개수 |
+| `soldCounts` | 빵별 누적 판매 개수. 도감에 보인다 |
+| `history` | 최근 7일의 일일 리포트. 예시는 줄였고, 실제로는 빵별 표까지 `DailyReport` 전체를 저장한다. PC의 리포트 탭에서 다시 본다 |
+
 - 세이브 DTO(`SaveData`)는 런타임 모델과 별개의 단순 클래스다. 모델이 바뀌어도 세이브 형식은 버전을 올려서만 바꾼다.
+- 마우스 감도와 소리 크기는 세이브가 아니라 `PlayerPrefs`에 저장한다 (세이브 슬롯과 무관한 기기 설정).
 
 ## 형식과 파일
 
@@ -62,13 +88,14 @@
 ```mermaid
 flowchart TB
     Read["1. 파일 읽기, JSON 파싱"] --> Migrate["2. 버전 확인 → 필요하면 단계별 변환<br/>(v1 → v2 → … 현재)"]
-    Migrate --> Models["3. 모델 복원 (순수 C#)<br/>지갑·평판·창고·가격·도감·천장·난수·ID 발급기·선반"]
+    Migrate --> Models["3. 모델 복원 (순수 C#)<br/>지갑·평판·경험치·해금·창고·가격·도감·천장·난수·ID 발급기·진열대"]
     Models --> World["4. 월드 아이템 생성<br/>팩토리가 박스·트레이 프리팹 생성, entityId 부여"]
     World --> Views["5. 뷰 초기화와 동기화<br/>ShelfView가 모델을 읽어 빵 오브젝트 배치"]
 ```
 
 - **모델을 먼저, 오브젝트를 나중에.** 오브젝트가 서로를 참조하는 상태를 직렬화하지 않고, ID만 저장해 두었다가 모델 복원 후 연결한다.
-- 선반은 씬에 배치된 `persistentId`로 찾는다. 세이브에 있는데 씬에 없는 ID는 경고 로그를 남기고 건너뛴다.
+- 진열대는 씬에 배치된 고정 ID(`shelf.01` 등)로 찾는다. 세이브에 있는데 씬에 없는 ID는 경고 로그를 남기고 건너뛴다.
+- 해금은 모델 복원에서 가장 먼저 적용한다. 잠긴 진열대에 빵을 채우는 순서 문제를 막기 위해서다.
 - 콘텐츠에서 사라진 레시피·재료 ID도 경고 로그 후 건너뛴다. 개발 중 콘텐츠를 지우거나 이름을 바꿨을 때 세이브가 통째로 깨지지 않게 한다.
 
 ## 버전 변환
@@ -88,6 +115,7 @@ public interface ISaveMigration
 | 테스트 | 확인하는 것 |
 | --- | --- |
 | 왕복 테스트 | 상태 생성 → 저장 → 불러오기 → 모든 모델이 같은지 |
+| 데모 세이브 테스트 | 저장소에 넣어 둔 데모 세이브 파일이 현재 버전으로 불러와지는지 |
 | 버전 변환 테스트 | v1 예시 JSON을 넣으면 현재 버전 형식으로 올라오는지 |
 | 손상 대비 테스트 | 알 수 없는 ID가 섞인 세이브를 불러와도 나머지가 복원되는지 |
 

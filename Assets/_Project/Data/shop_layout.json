@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "room": {"xMin": -5.0, "zMin": -6.0, "xMax": 5.0, "zMax": 6.0, "wallHeight": 3.0, "wallThickness": 0.2},
+  "sidewalk": {"xMin": -9.0, "zMin": -9.0, "xMax": 9.0, "zMax": -6.0},
+  "door": {"xMin": -3.0, "xMax": -1.4},
+  "zones": [
+    {"id": "checkout", "name": "계산 구역", "xMin": 1.1, "zMin": -6.0, "xMax": 5.0, "zMax": -3.8, "customersCanWalk": false},
+    {"id": "kitchen", "name": "주방", "xMin": -5.0, "zMin": 3.45, "xMax": 5.0, "zMax": 6.0, "customersCanWalk": false}
+  ],
+  "furniture": [
+    {"id": "counter.01", "name": "계산대", "kind": "furniture", "x": 2.6, "z": -3.4, "sizeX": 3.0, "sizeZ": 0.8, "height": 0.9},
+    {"id": "partition", "name": "칸막이", "kind": "wall", "x": 1.05, "z": -4.9, "sizeX": 0.1, "sizeZ": 2.2, "height": 1.2},
+    {"id": "pc.01", "name": "발주 PC", "kind": "furniture", "x": 4.5, "z": -5.5, "sizeX": 0.9, "sizeZ": 0.8, "height": 0.8},
+    {"id": "shelf.01", "name": "진열대 1", "kind": "shelf", "x": -4.6, "z": -2.0, "sizeX": 0.6, "sizeZ": 2.4, "height": 1.2},
+    {"id": "shelf.02", "name": "진열대 2", "kind": "shelf", "x": -4.6, "z": 1.0, "sizeX": 0.6, "sizeZ": 2.4, "height": 1.2},
+    {"id": "shelf.03", "name": "진열대 3", "kind": "shelf", "x": -1.3, "z": -0.5, "sizeX": 0.6, "sizeZ": 2.4, "height": 1.2, "unlockId": "unlock.shelf.03"},
+    {"id": "shelf.04", "name": "진열대 4", "kind": "shelf", "x": -0.7, "z": -0.5, "sizeX": 0.6, "sizeZ": 2.4, "height": 1.2, "unlockId": "unlock.shelf.04"},
+    {"id": "divider", "name": "주방 카운터", "kind": "furniture", "x": -1.3, "z": 3.2, "sizeX": 7.4, "sizeZ": 0.5, "height": 0.9},
+    {"id": "table.01", "name": "작업대", "kind": "furniture", "x": -2.6, "z": 5.5, "sizeX": 1.8, "sizeZ": 0.8, "height": 0.9},
+    {"id": "oven.01", "name": "오븐 1", "kind": "oven", "x": -0.5, "z": 5.5, "sizeX": 1.2, "sizeZ": 0.9, "height": 1.4},
+    {"id": "oven.02", "name": "오븐 2", "kind": "oven", "x": 1.2, "z": 5.5, "sizeX": 1.2, "sizeZ": 0.9, "height": 1.4, "unlockId": "unlock.oven.02"},
+    {"id": "storage.01", "name": "창고 선반", "kind": "storage", "x": 4.5, "z": 5.0, "sizeX": 0.8, "sizeZ": 1.8, "height": 2.0},
+    {"id": "trash.01", "name": "쓰레기통", "kind": "furniture", "x": -4.5, "z": 4.4, "sizeX": 0.6, "sizeZ": 0.6, "height": 0.8}
+  ],
+  "shelves": [
+    {"id": "shelf.01", "facing": "east", "slotZ": [-2.8, -2.0, -1.2], "standX": -3.7},
+    {"id": "shelf.02", "facing": "east", "slotZ": [0.2, 1.0, 1.8], "standX": -3.7},
+    {"id": "shelf.03", "facing": "west", "slotZ": [-1.3, -0.5, 0.3], "standX": -2.2},
+    {"id": "shelf.04", "facing": "east", "slotZ": [-1.3, -0.5, 0.3], "standX": 0.2}
+  ],
+  "points": [
+    {"id": "player.start", "name": "플레이어 시작", "kind": "player", "x": 0.0, "z": -4.0},
+    {"id": "cashier", "name": "계산 자리", "kind": "player", "x": 2.6, "z": -4.3},
+    {"id": "queue.0", "name": "손님 계산 위치", "kind": "customer", "x": 2.6, "z": -2.5},
+    {"id": "queue.1", "name": "줄 1", "kind": "customer", "x": 2.6, "z": -1.5},
+    {"id": "queue.2", "name": "줄 2", "kind": "customer", "x": 2.6, "z": -0.5},
+    {"id": "queue.3", "name": "줄 3", "kind": "customer", "x": 2.6, "z": 0.5},
+    {"id": "queue.4", "name": "줄 4", "kind": "customer", "x": 2.6, "z": 1.5},
+    {"id": "customer.entry", "name": "손님 입장 지점", "kind": "customer", "x": -2.2, "z": -5.0},
+    {"id": "customer.spawn.west", "name": "손님 생성·퇴장 (서)", "kind": "customer", "x": -8.5, "z": -7.5},
+    {"id": "customer.spawn.east", "name": "손님 생성·퇴장 (동)", "kind": "customer", "x": 8.5, "z": -7.5},
+    {"id": "delivery", "name": "배송 지점", "kind": "delivery", "x": -4.2, "z": -7.3},
+    {"id": "sign", "name": "영업 팻말", "kind": "sign", "x": -1.1, "z": -5.95}
+  ],
+  "playerStands": [
+    {"target": "oven.01", "x": -0.5, "z": 4.6},
+    {"target": "oven.02", "x": 1.2, "z": 4.6},
+    {"target": "table.01", "x": -2.6, "z": 4.7},
+    {"target": "storage.01", "x": 3.7, "z": 5.0},
+    {"target": "pc.01", "x": 3.7, "z": -5.3},
+    {"target": "counter.01", "x": 2.6, "z": -4.3}
+  ],
+  "staffPath": [[2.6, -4.3], [4.55, -4.3], [4.55, 3.9], [-0.5, 4.6]]
+}
