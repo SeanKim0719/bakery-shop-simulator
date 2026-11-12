@@ -8,7 +8,7 @@
 
 | 마일스톤 | 끝났을 때 되는 것 | 재미 포인트 | 작업 수 | 예상 기간 | 태그 |
 | --- | --- | --- | --- | --- | --- |
-| [M1. 조작과 상호작용](M1-player-interaction.md) | 걸어 다니며 박스를 들고, 쌓고, 내려놓는다 | F1 | 3 | 0.5주 (코드 완료, 확인만 남음) | `v0.1-movement` |
+| [M1. 조작과 상호작용](M1-player-interaction.md) | 걸어 다니며 박스를 들고, 쌓고, 내려놓는다 | F1 | 3 | 0.5주 (코드 병합 완료, 확인만 남음) | `v0.1-movement` |
 | [M2. 코어와 매장 그레이박스](M2-core-and-greybox.md) | 실제 배치의 매장에서 팻말을 돌리면 시계가 흐르고 18시에 마감된다 | - | 9 | 2주 | `v0.2-core` |
 | [M3. 생산 루프](M3-production-loop.md) | 발주 → 배송 → 창고 → 굽기 → 진열 → 가격 설정이 손님 없이 돈다 | F2, F6, F7 | 10 | 2.5주 | `v0.3-production` |
 | [M4. 영업 루프](M4-shop-loop.md) | 손님이 와서 사고, 계산하고, 정산 리포트가 나온다. **하루가 처음부터 끝까지 돈다** | F3, F4, F5, F8 | 9 | 3주 | `v0.4-day-loop` |
@@ -30,6 +30,22 @@ flowchart LR
 
 M4가 끝나는 시점이 가장 중요하다. 하루가 처음부터 끝까지 도는 첫 빌드이고, 시뮬레이터의 가정값을 실제로 잰 값으로 바꿔 밸런스를 다시 확인하는 시점이다.
 
+## 진행 상황을 보는 곳
+
+작업 45개는 GitHub 이슈로 등록되어 있고, 마일스톤 여섯 개로 묶여 있다.
+
+| 보고 싶은 것 | 어디서 |
+| --- | --- |
+| 마일스톤별 진행률 (막대) | [Milestones](https://github.com/SeanKim0719/bakery-shop-simulator/milestones) |
+| 지금 해야 할 작업 | [열려 있는 `task` 이슈](https://github.com/SeanKim0719/bakery-shop-simulator/issues?q=is%3Aissue+is%3Aopen+label%3Atask+sort%3Acreated-asc) (번호가 작은 것부터 순서대로) |
+| 직접 플레이해서 확인할 것이 있는 작업 | [`needs-playtest` 이슈](https://github.com/SeanKim0719/bakery-shop-simulator/issues?q=is%3Aissue+is%3Aopen+label%3Aneeds-playtest+sort%3Acreated-asc) |
+| 트러블슈팅 기록 | [`troubleshooting` 이슈](https://github.com/SeanKim0719/bakery-shop-simulator/issues?q=is%3Aissue+label%3Atroubleshooting) |
+| 전체 체크리스트 한 장 | [로드맵](../ROADMAP.md) |
+
+- 이슈마다 목적, 작업 명세 링크, "Unity에서 확인" 체크리스트, 먼저 끝나야 하는 작업이 들어 있다. 확인한 항목은 이슈에서 바로 체크한다.
+- PR 본문에 `Closes #이슈번호`를 적으면 병합할 때 이슈가 닫히고 마일스톤의 진행률이 오른다.
+- 작업 명세(이 폴더의 문서)를 고치면 이슈의 체크리스트도 맞춰 고친다. 명세가 원본이다.
+
 ## 작업 명세를 읽는 법
 
 마일스톤 문서의 작업은 모두 같은 형식이다.
@@ -50,12 +66,12 @@ M4가 끝나는 시점이 가장 중요하다. 하루가 처음부터 끝까지 
 
 | 단계 | 누가 | 하는 일 |
 | --- | --- | --- |
-| 1 | Claude | 작업 명세대로 코드와 EditMode 테스트를 작성하고 PR을 연다 |
+| 1 | Claude | 작업 명세대로 코드와 EditMode 테스트를 작성하고 PR을 연다. PR 본문에 `Closes #이슈번호`를 적는다 |
 | 2 | 사용자 | 브랜치를 받아 Unity에서 EditMode 테스트를 전부 실행한다 |
 | 3 | 사용자 | "Unity에서 확인" 항목을 직접 플레이하며 확인한다 |
 | 4 | 사용자 | 어색하거나 틀린 것이 있으면 트러블슈팅 템플릿으로 이슈를 남긴다 (현상, 재현 절차, GIF) |
 | 5 | 함께 | 가설을 세우고, 검증하고, 고친다. 과정은 이슈에 계속 덧붙인다 |
-| 6 | 사용자 | 항목이 모두 통과하면 PR을 병합한다 |
+| 6 | 사용자 | 항목이 모두 통과하면 PR을 병합한다 (이슈가 함께 닫힌다) |
 
 Claude는 Unity 에디터를 실행할 수 없다. 그래서 순수 C# 규칙은 테스트로 미리 확인하고, 조작감·충돌·화면처럼 실행해야 보이는 것은 사용자가 확인한다. **4번과 5번이 포트폴리오의 트러블슈팅 기록이 된다.**
 
@@ -108,28 +124,28 @@ Claude는 Unity 에디터를 실행할 수 없다. 그래서 순수 C# 규칙은
 
 ## 전체 작업 목록
 
-| ID | 작업 | ID | 작업 |
-| --- | --- | --- | --- |
-| [M1-01](M1-player-interaction.md) | PR #1 확인과 병합 | [M4-02](M4-shop-loop.md) | 손님 두뇌(FSM)와 계산 줄 |
-| [M1-02](M1-player-interaction.md) | 트러블슈팅 기록 2건 | [M4-03](M4-shop-loop.md) | 손님 생성과 빵 냄새 |
-| [M1-03](M1-player-interaction.md) | 태그 | [M4-04](M4-shop-loop.md) | 손님 몸체, 풀, 매장 지점 |
-| [M2-01](M2-core-and-greybox.md) | 이벤트 버스 | [M4-05](M4-shop-loop.md) | 결제 세션과 현금 계산 |
-| [M2-02](M2-core-and-greybox.md) | 난수와 꺾은선 | [M4-06](M4-shop-loop.md) | 계산대와 결제 패널 |
-| [M2-03](M2-core-and-greybox.md) | 시간 | [M4-07](M4-shop-loop.md) | 평판·경험치 규칙 연결 |
-| [M2-04](M2-core-and-greybox.md) | 하루 단계 | [M4-08](M4-shop-loop.md) | 정산과 리포트 |
-| [M2-05](M2-core-and-greybox.md) | 콘텐츠 정의와 데이터베이스 | [M4-09](M4-shop-loop.md) | 하루 통합 테스트와 수치 재확인 |
-| [M2-06](M2-core-and-greybox.md) | `content.json` 임포터 | [M5-01](M5-growth-and-collection.md) | 해금과 잠긴 가구 |
-| [M2-07](M2-core-and-greybox.md) | 돈·평판·경험치 상태 | [M5-02](M5-growth-and-collection.md) | 미스터리 박스 뽑기 |
-| [M2-08](M2-core-and-greybox.md) | 매장 그레이박스 씬 | [M5-03](M5-growth-and-collection.md) | 박스 개봉 연출 |
-| [M2-09](M2-core-and-greybox.md) | 부트스트랩 확장, 팻말, HUD, 패널 호스트 | [M5-04](M5-growth-and-collection.md) | 도감과 실험 |
-| [M3-01](M3-production-loop.md) | 창고 | [M5-05](M5-growth-and-collection.md) | 실험 탭, 도감 탭, 재료 판매 |
-| [M3-02](M3-production-loop.md) | 발주와 배송 | [M5-06](M5-growth-and-collection.md) | 목표 리스트, 알림, 데모 목표 |
-| [M3-03](M3-production-loop.md) | 박스 열기 | [M6-01](M6-save-and-polish.md) | 세이브 데이터와 저장 |
-| [M3-04](M3-production-loop.md) | 가격 | [M6-02](M6-save-and-polish.md) | 불러오기와 월드 아이템 |
-| [M3-05](M3-production-loop.md) | 오븐과 트레이 수 | [M6-03](M6-save-and-polish.md) | 타이틀, 일시정지, 설정 |
-| [M3-06](M3-production-loop.md) | 트레이와 진열대 | [M6-04](M6-save-and-polish.md) | 데모 세이브 |
-| [M3-07](M3-production-loop.md) | 오븐 뷰와 굽기 패널 | [M6-05](M6-save-and-polish.md) | 사운드 |
-| [M3-08](M3-production-loop.md) | 진열대 뷰와 쓰레기통 | [M6-06](M6-save-and-polish.md) | 아트 패스 |
-| [M3-09](M3-production-loop.md) | PC 패널: 발주와 가격 | [M6-07](M6-save-and-polish.md) | 프로파일링과 스트레스 테스트 |
-| [M3-10](M3-production-loop.md) | 하루 마무리 단계 (생산), HUD, 알림 | [M6-08](M6-save-and-polish.md) | 빌드, 영상, README |
-| [M4-01](M4-shop-loop.md) | 방문 계획과 구매 판단 |  | |
+| ID | 작업 | 이슈 | ID | 작업 | 이슈 |
+| --- | --- | --- | --- | --- | --- |
+| [M1-01](M1-player-interaction.md) | 병합한 조작 코드 확인 | [#4](https://github.com/SeanKim0719/bakery-shop-simulator/issues/4) | [M4-02](M4-shop-loop.md) | 손님 두뇌(FSM)와 계산 줄 | [#27](https://github.com/SeanKim0719/bakery-shop-simulator/issues/27) |
+| [M1-02](M1-player-interaction.md) | 트러블슈팅 기록 2건 | [#5](https://github.com/SeanKim0719/bakery-shop-simulator/issues/5) | [M4-03](M4-shop-loop.md) | 손님 생성과 빵 냄새 | [#28](https://github.com/SeanKim0719/bakery-shop-simulator/issues/28) |
+| [M1-03](M1-player-interaction.md) | 태그 | [#6](https://github.com/SeanKim0719/bakery-shop-simulator/issues/6) | [M4-04](M4-shop-loop.md) | 손님 몸체, 풀, 매장 지점 | [#29](https://github.com/SeanKim0719/bakery-shop-simulator/issues/29) |
+| [M2-01](M2-core-and-greybox.md) | 이벤트 버스 | [#7](https://github.com/SeanKim0719/bakery-shop-simulator/issues/7) | [M4-05](M4-shop-loop.md) | 결제 세션과 현금 계산 | [#30](https://github.com/SeanKim0719/bakery-shop-simulator/issues/30) |
+| [M2-02](M2-core-and-greybox.md) | 난수와 꺾은선 | [#8](https://github.com/SeanKim0719/bakery-shop-simulator/issues/8) | [M4-06](M4-shop-loop.md) | 계산대와 결제 패널 | [#31](https://github.com/SeanKim0719/bakery-shop-simulator/issues/31) |
+| [M2-03](M2-core-and-greybox.md) | 시간 | [#9](https://github.com/SeanKim0719/bakery-shop-simulator/issues/9) | [M4-07](M4-shop-loop.md) | 평판·경험치 규칙 연결 | [#32](https://github.com/SeanKim0719/bakery-shop-simulator/issues/32) |
+| [M2-04](M2-core-and-greybox.md) | 하루 단계 | [#10](https://github.com/SeanKim0719/bakery-shop-simulator/issues/10) | [M4-08](M4-shop-loop.md) | 정산과 리포트 | [#33](https://github.com/SeanKim0719/bakery-shop-simulator/issues/33) |
+| [M2-05](M2-core-and-greybox.md) | 콘텐츠 정의와 데이터베이스 | [#11](https://github.com/SeanKim0719/bakery-shop-simulator/issues/11) | [M4-09](M4-shop-loop.md) | 하루 통합 테스트와 수치 재확인 | [#34](https://github.com/SeanKim0719/bakery-shop-simulator/issues/34) |
+| [M2-06](M2-core-and-greybox.md) | `content.json` 임포터 | [#12](https://github.com/SeanKim0719/bakery-shop-simulator/issues/12) | [M5-01](M5-growth-and-collection.md) | 해금과 잠긴 가구 | [#35](https://github.com/SeanKim0719/bakery-shop-simulator/issues/35) |
+| [M2-07](M2-core-and-greybox.md) | 돈·평판·경험치 상태 | [#13](https://github.com/SeanKim0719/bakery-shop-simulator/issues/13) | [M5-02](M5-growth-and-collection.md) | 미스터리 박스 뽑기 | [#36](https://github.com/SeanKim0719/bakery-shop-simulator/issues/36) |
+| [M2-08](M2-core-and-greybox.md) | 매장 그레이박스 씬 | [#14](https://github.com/SeanKim0719/bakery-shop-simulator/issues/14) | [M5-03](M5-growth-and-collection.md) | 박스 개봉 연출 | [#37](https://github.com/SeanKim0719/bakery-shop-simulator/issues/37) |
+| [M2-09](M2-core-and-greybox.md) | 부트스트랩 확장, 팻말, HUD, 패널 호스트 | [#15](https://github.com/SeanKim0719/bakery-shop-simulator/issues/15) | [M5-04](M5-growth-and-collection.md) | 도감과 실험 | [#38](https://github.com/SeanKim0719/bakery-shop-simulator/issues/38) |
+| [M3-01](M3-production-loop.md) | 창고 | [#16](https://github.com/SeanKim0719/bakery-shop-simulator/issues/16) | [M5-05](M5-growth-and-collection.md) | 실험 탭, 도감 탭, 재료 판매 | [#39](https://github.com/SeanKim0719/bakery-shop-simulator/issues/39) |
+| [M3-02](M3-production-loop.md) | 발주와 배송 | [#17](https://github.com/SeanKim0719/bakery-shop-simulator/issues/17) | [M5-06](M5-growth-and-collection.md) | 목표 리스트, 알림, 데모 목표 | [#40](https://github.com/SeanKim0719/bakery-shop-simulator/issues/40) |
+| [M3-03](M3-production-loop.md) | 박스 열기 | [#18](https://github.com/SeanKim0719/bakery-shop-simulator/issues/18) | [M6-01](M6-save-and-polish.md) | 세이브 데이터와 저장 | [#41](https://github.com/SeanKim0719/bakery-shop-simulator/issues/41) |
+| [M3-04](M3-production-loop.md) | 가격 | [#19](https://github.com/SeanKim0719/bakery-shop-simulator/issues/19) | [M6-02](M6-save-and-polish.md) | 불러오기와 월드 아이템 | [#42](https://github.com/SeanKim0719/bakery-shop-simulator/issues/42) |
+| [M3-05](M3-production-loop.md) | 오븐과 트레이 수 | [#20](https://github.com/SeanKim0719/bakery-shop-simulator/issues/20) | [M6-03](M6-save-and-polish.md) | 타이틀, 일시정지, 설정 | [#43](https://github.com/SeanKim0719/bakery-shop-simulator/issues/43) |
+| [M3-06](M3-production-loop.md) | 트레이와 진열대 | [#21](https://github.com/SeanKim0719/bakery-shop-simulator/issues/21) | [M6-04](M6-save-and-polish.md) | 데모 세이브 | [#44](https://github.com/SeanKim0719/bakery-shop-simulator/issues/44) |
+| [M3-07](M3-production-loop.md) | 오븐 뷰와 굽기 패널 | [#22](https://github.com/SeanKim0719/bakery-shop-simulator/issues/22) | [M6-05](M6-save-and-polish.md) | 사운드 | [#45](https://github.com/SeanKim0719/bakery-shop-simulator/issues/45) |
+| [M3-08](M3-production-loop.md) | 진열대 뷰와 쓰레기통 | [#23](https://github.com/SeanKim0719/bakery-shop-simulator/issues/23) | [M6-06](M6-save-and-polish.md) | 아트 패스 | [#46](https://github.com/SeanKim0719/bakery-shop-simulator/issues/46) |
+| [M3-09](M3-production-loop.md) | PC 패널: 발주와 가격 | [#24](https://github.com/SeanKim0719/bakery-shop-simulator/issues/24) | [M6-07](M6-save-and-polish.md) | 프로파일링과 스트레스 테스트 | [#47](https://github.com/SeanKim0719/bakery-shop-simulator/issues/47) |
+| [M3-10](M3-production-loop.md) | 하루 마무리 단계 (생산), HUD, 알림 | [#25](https://github.com/SeanKim0719/bakery-shop-simulator/issues/25) | [M6-08](M6-save-and-polish.md) | 빌드, 영상, README | [#48](https://github.com/SeanKim0719/bakery-shop-simulator/issues/48) |
+| [M4-01](M4-shop-loop.md) | 방문 계획과 구매 판단 | [#26](https://github.com/SeanKim0719/bakery-shop-simulator/issues/26) |  | | |

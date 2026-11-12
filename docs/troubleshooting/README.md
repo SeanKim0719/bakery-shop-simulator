@@ -10,6 +10,8 @@
 
 정리본 파일명은 `TS-001-짧은-제목.md` 형식을 쓴다.
 
+기록 중인 사례 (이슈): [#2](https://github.com/SeanKim0719/bakery-shop-simulator/issues/2) 손에 든 물건이 벽·가구에 파고든다, [#3](https://github.com/SeanKim0719/bakery-shop-simulator/issues/3) 몸과 겹치게 내려놓으면 플레이어가 박스 위로 올라간다. 전체 목록은 [`troubleshooting` 이슈](https://github.com/SeanKim0719/bakery-shop-simulator/issues?q=is%3Aissue+label%3Atroubleshooting)에서 본다.
+
 ## 기록 방식
 
 1. 문제가 생긴 그날 GitHub Issue로 남긴다 (템플릿: `.github/ISSUE_TEMPLATE/troubleshooting.md`). 나중에 기억으로 쓰면 가설과 실패한 시도가 사라지는데, 면접에서 파고드는 부분이 바로 그것이다.
