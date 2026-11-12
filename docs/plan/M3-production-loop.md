@@ -173,6 +173,7 @@ namespace BakeryShop.World
 - 정산 단계에는 주문할 수 없다 (`ShopClosed`). 나머지 단계에서는 된다.
 - `Tick`은 도착 시각이 지난 박스마다 `OrderDelivered(주문 ID, 상품 ID, 개체 ID)`를 발행한다. 주문한 순서대로 도착한다.
 - `BoxSpawner`가 `OrderDelivered`를 받아 `DeliveryBox`를 만든다. `DeliverySpotMath`의 후보 자리를 차례로 보면서 `Physics.CheckBox`로 비어 있는 첫 자리에 놓는다. 18자리가 모두 차 있으면 마지막 자리 위 1m에서 떨어뜨린다.
+- 박스를 놓을 때마다 `Rigidbody.position`을 맞추고 `Physics.SyncTransforms()`를 부른다. 한 프레임에 여러 박스가 도착하는데, 방금 놓은 박스가 물리 엔진에 반영되지 않으면 다음 박스의 `CheckBox`가 같은 자리를 비었다고 본다 ([TS-002](../troubleshooting/TS-002-drop-physics-pose-sync.md)에서 배운 것).
 - 박스의 이름은 상품 이름이다 (`[E] 밀가루 10개 들기`). 미스터리 박스는 색이 다르다 (일반 보라, 고급 금색).
 - `HoldableObject`의 `sealed`를 떼고 `DeliveryBox`가 상속한다. 대상은 `context.Held is DeliveryBox box`로 내용물을 안다.
 - `Hands.Release`는 `Held`를 비우고 `HeldChanged`를 발행한다. 물건의 부모만 떼고 충돌과 물리는 그대로 둔다.
@@ -194,7 +195,7 @@ namespace BakeryShop.World
 
 **Unity에서 확인** (PC 패널은 M3-09에서 만든다. 여기서는 개발용 단축키 F9 = "밀가루 ×2, 버터 ×1 주문"으로 확인한다)
 
-- [ ] F9를 누르면 HUD의 돈이 27,000원 줄고, 20초 뒤 문밖 배송 지점에 박스 3개가 겹치지 않게 놓인다.
+- [ ] F9를 누르면 HUD의 돈이 27,000원 줄고, 20초 뒤 문밖 배송 지점에 박스 3개가 겹치지 않게 놓인다 (같은 프레임에 도착하는 세 박스가 한자리에 겹쳐 튀지 않는다).
 - [ ] 박스를 바라보면 `[E] 밀가루 10개 들기`처럼 상품 이름이 뜬다.
 - [ ] F9를 여러 번 눌러 박스가 6개를 넘으면 2단으로 쌓인다. 쌓인 박스가 무너지지 않는다.
 - [ ] 돈이 모자라면 F9를 눌러도 아무 일도 없다.

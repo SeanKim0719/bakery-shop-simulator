@@ -8,8 +8,9 @@ namespace BakeryShop.Player
     /// <remarks>
     /// 물리 쿼리(Physics.CheckBox)는 CharacterController의 캡슐(반지름)만 보고 스킨(skinWidth)은 보지 않는다.
     /// 게다가 상자는 0.95배로 줄여 검사한다. 그래서 쿼리로는 "안 겹침"이어도 상자가 몸 가장자리나 스킨 안쪽에
-    /// 들어올 수 있고, 이때 CharacterController가 상자 위로 올라타는 것으로 추정한다 (트러블슈팅 가설 1).
-    /// 플레이어 몸만큼은 쿼리에 맡기지 않고 스킨까지 포함한 크기로 직접 계산해서 막는다.
+    /// 들어올 수 있다. 플레이어 몸만큼은 쿼리에 맡기지 않고 스킨까지 포함한 크기로 직접 계산해서 막는다.
+    /// (처음에는 이것이 "내려놓으면 플레이어가 솟는" 버그의 원인이라고 봤지만 아니었다. 원인은 내려놓는 순간의
+    /// 물리 자세 동기화였다. docs/troubleshooting/TS-002 참고. 이 검사는 안전장치로 남겨 둔다.)
     /// </remarks>
     public static class PlacementMath
     {

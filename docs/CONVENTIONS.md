@@ -122,6 +122,7 @@ namespace BakeryShop.World
 4. **`Update`는 화면 표시만 한다.** 게임 상태를 바꾸는 갱신은 `GameBootstrap`이 정한 순서로 시스템의 `Tick`이 한다.
 5. **인스펙터 필드는 `[SerializeField] private`**로 두고, `[Tooltip]`에 단위와 뜻을 적는다. 수치는 인스펙터가 아니라 `content.json`에 둔다 (손 위치, 색처럼 보이는 것만 인스펙터).
 6. **`GameObject.Find`, 태그 문자열 비교를 쓰지 않는다.** 가구는 고정 ID로, 나머지는 직접 참조로 찾는다.
+7. **Rigidbody가 붙은 물건을 순간이동시킬 때는 물리 쪽 자세를 먼저 맞춘다.** Transform을 옮겨도 물리 엔진은 다음 FixedUpdate까지 옛 자리를 본다. 옮긴 직후에 콜라이더를 켜거나 물리 쿼리(`CheckBox`, `Raycast`)를 할 거라면 `Rigidbody.position`/`rotation`을 맞추고 `Physics.SyncTransforms()`를 부른 다음에 한다 ([TS-002](troubleshooting/TS-002-drop-physics-pose-sync.md)).
 
 ## 이벤트
 

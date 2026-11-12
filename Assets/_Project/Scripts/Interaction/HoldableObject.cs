@@ -73,7 +73,7 @@ namespace BakeryShop.Interaction
             // 물리 엔진은 Transform의 변경을 다음 FixedUpdate 직전에야 받아들인다 (Physics.autoSyncTransforms가 꺼져 있을 때).
             // 그 전에 콜라이더를 켜면, 물리 엔진 안에서는 콜라이더가 "들고 있던 자리"에 생긴다. 아래를 내려다볼 때
             // 들고 있던 자리는 플레이어 몸 안이라서, 같은 프레임의 CharacterController.Move가 겹침을 풀려고
-            // 플레이어를 위로 밀어 올린다 (트러블슈팅 #3, 가설 3).
+            // 플레이어를 위로 밀어 올린다 (docs/troubleshooting/TS-002. Auto Sync Transforms를 켜면 사라지는 것으로 확인).
             // 그래서 콜라이더를 켜기 전에 물리 쪽 자세를 직접 맞추고 바로 동기화한다.
             _body.position = position;
             _body.rotation = rotation;

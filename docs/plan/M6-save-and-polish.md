@@ -171,7 +171,7 @@ namespace BakeryShop.Save
 - 콘텐츠에 없는 ID(지운 레시피, 이름을 바꾼 재료)와 씬에 없는 진열대 ID는 **건너뛰고 경고 목록에 넣는다.** 세이브 전체를 버리지 않는다.
 - `TryParse`: JSON이 깨졌으면 `Corrupted`. `version`이 현재보다 크면 `NewerVersion`. 작으면 변환기를 순서대로 적용한다.
 - `WorldItemRegistry`: 살아 있는 `DeliveryBox`와 `TrayView`를 등록해 두고, `Capture`에서 종류·위치·회전·내용물을 돌려준다. `Restore`에서는 `BoxSpawner`와 `TrayFactory`로 다시 만든다.
-- 복원한 물건은 물리가 안정될 때까지 한 프레임 동안 kinematic으로 두었다가 푼다 (쌓여 있던 박스가 불러오자마자 튀지 않게).
+- 복원한 물건은 `Rigidbody.position`을 맞추고, 모두 놓은 뒤 `Physics.SyncTransforms()`를 한 번 부른다. 물리가 안정될 때까지 한 프레임 동안 kinematic으로 두었다가 푼다 (쌓여 있던 박스가 불러오자마자 튀지 않게. [TS-002](../troubleshooting/TS-002-drop-physics-pose-sync.md)).
 - `GameBootstrap.Awake`: `LaunchRequest`가 "이어하기"면 `StartNewGame` 대신 `TryRead` → `Apply`. 실패하면 타이틀로 돌아가 사유를 보여준다.
 
 **테스트**
