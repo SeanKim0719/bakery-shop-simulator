@@ -70,11 +70,22 @@ namespace BakeryShop.Interaction
             transform.SetParent(null, worldPositionStays: true);
             transform.SetPositionAndRotation(position, rotation);
 
+            // 물리 엔진은 Transform의 변경을 다음 FixedUpdate 직전에야 받아들인다 (Physics.autoSyncTransforms가 꺼져 있을 때).
+            // 그 전에 콜라이더를 켜면, 물리 엔진 안에서는 콜라이더가 "들고 있던 자리"에 생긴다. 아래를 내려다볼 때
+            // 들고 있던 자리는 플레이어 몸 안이라서, 같은 프레임의 CharacterController.Move가 겹침을 풀려고
+            // 플레이어를 위로 밀어 올린다 (트러블슈팅 #3, 가설 3).
+            // 그래서 콜라이더를 켜기 전에 물리 쪽 자세를 직접 맞추고 바로 동기화한다.
+            _body.position = position;
+            _body.rotation = rotation;
+            Physics.SyncTransforms();
+
             SetCollidersEnabled(true);
             _body.isKinematic = false;
-            _body.interpolation = RigidbodyInterpolation.Interpolate;
             _body.linearVelocity = Vector3.zero;
             _body.angularVelocity = Vector3.zero;
+
+            // 보간은 자세를 맞춘 뒤에 켠다. 먼저 켜면 이전 자세와 섞인 위치가 한 프레임 그려질 수 있다.
+            _body.interpolation = RigidbodyInterpolation.Interpolate;
 
             IsHeld = false;
         }
