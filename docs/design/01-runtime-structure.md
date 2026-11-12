@@ -11,18 +11,7 @@
 
 `Title`은 선택 결과를 `LaunchRequest`(새 게임인지, 어떤 세이브 슬롯인지)로 남기고 `Shop`을 로드한다. 매장이 하나뿐이라 씬을 나누지 않는다.
 
-`Shop` 씬 하이어라키:
-
-```
-Shop
-├── [Bootstrap]          GameBootstrap
-├── [Environment]        벽·바닥·조명, NavMeshSurface
-├── [Furniture]          Oven ×2, Shelf ×4, CheckoutCounter, OrderPC, StorageArea
-├── [Points]             DeliveryPoint, CustomerSpawn, CustomerExit
-├── [Player]             PlayerRig (CharacterController, Camera, Interactor, Hands)
-├── [Pools]              CustomerPool, BreadViewPool, BoxPool
-└── [UI]                 HUD, OvenPanel, PCApp, CheckoutPanel, ReportPanel
-```
+`Shop` 씬의 구성과 가구의 좌표는 [11 문서](11-shop-layout.md)에 있다.
 
 ## 부트스트랩 (Composition Root)
 
@@ -30,9 +19,9 @@ Shop
 
 ```mermaid
 flowchart TB
-    Boot["GameBootstrap.Awake()"] --> DB["1. ContentDatabase 로드<br/>(레시피·재료·상품·손님·루트테이블 SO)"]
-    DB --> Core["2. 코어 생성<br/>EventBus, Rng, TimeService"]
-    Core --> Models["3. 시스템 생성 (순수 C#)<br/>Wallet, Storage, Pricing, Ovens, Shelves,<br/>Orders, Loot, RecipeBook, Customers, Checkout, Economy, DayCycle"]
+    Boot["GameBootstrap.Awake()"] --> DB["1. ContentDatabase 준비<br/>(재료·레시피·상품·확률표·손님·해금·설정)"]
+    DB --> Core["2. 코어 생성<br/>EventBus, Rng 2개(손님용·박스용), TimeService"]
+    Core --> Models["3. 시스템 생성 (순수 C#)<br/>Wallet, Reputation, Progression, Unlocks, Storage, Pricing,<br/>Ovens, Shelves, Orders, Loot, RecipeBook, Customers, Checkout, Ledger, DayCycle"]
     Models --> Ctx["4. GameContext로 묶음"]
     Ctx --> State["5. 상태 채우기<br/>새 게임: 시작 데이터 / 이어하기: SaveService.Load"]
     State --> Views["6. 씬 뷰 초기화<br/>FindObjectsByType로 IContextConsumer를 찾아 Init(ctx)"]
@@ -66,31 +55,42 @@ flowchart TB
 | 시스템 | 책임 | 주요 의존 |
 | --- | --- | --- |
 | `TimeService` | 시뮬레이션 시간, 영업 시계, 일시정지 | - |
-| `DayCycle` | 하루 단계 전환 (준비 → 영업 → 마감 → 정산) | TimeService, EventBus |
-| `Wallet` | 보유 금액 (원 단위 정수) | EventBus |
-| `StorageInventory` | 창고 재료 수량 | EventBus |
-| `PricingService` | 레시피별 판매가, 시세 대비 구매 확률 | ContentDatabase |
-| `OvenSystem` | 오븐 모델들, 굽기 진행, 품질 판정 | TimeService, Storage, RecipeBook |
-| `ShelfSystem` | 선반 모델들, 진열·집기 | EventBus |
+| `DayCycle` | 하루 단계 전환, 하루 마무리 단계 실행 | TimeService |
+| `Wallet` | 잔액 (원 단위 정수) | - |
+| `ReputationService` | 평판 0~1000. 변화 규칙은 `ReputationRules`가 이벤트를 구독해 적용 | - |
+| `ProgressionService` | 경험치, 레벨. 획득 규칙은 `XpRules`가 이벤트를 구독해 적용 | - |
+| `UnlockService` | 해금 구매 (레시피 라이선스, 가구, 트레이) | Wallet, Progression, RecipeBook, Ovens, Shelves, Trays |
+| `StorageInventory` | 창고 재료 수량 | - |
+| `PricingService` | 레시피별 판매가 | ContentDatabase |
+| `OvenSystem` | 오븐 모델들, 굽기 시작·꺼내기, 품질 판정 | TimeService, Storage, RecipeBook, Trays |
+| `TraySystem` | 트레이의 개수, 빵이 올라가 있는 트레이 목록 | - |
+| `ShelfSystem` | 진열대 모델들, 진열·집기, 빵 나이 먹이기 | Trays, Pricing |
 | `OrderService` | 발주, 배송 대기열 | Wallet, TimeService |
-| `LootService` | 미스터리 박스 개봉, 천장 | Rng, ContentDatabase |
-| `RecipeBook` | 재료 조합 판정, 발견 기록 | ContentDatabase |
-| `CustomerSystem` | 손님 생성 주기, 손님 두뇌(FSM) 갱신 | Shelves, Pricing, Checkout, Rng |
-| `CheckoutService` | 계산 대기열, 결제 세션 | Wallet |
-| `EconomyLedger` | 하루 매출·비용·폐기 집계, 일일 리포트 | EventBus |
+| `BoxService` | 박스 개봉 (재료 묶음은 창고로, 미스터리 박스는 뽑기) | Storage, LootService |
+| `LootService` | 확률표 뽑기, 천장 | 박스용 Rng |
+| `RecipeBook` | 아는 레시피, 핵심 재료 힌트, 실험 판정과 기록 | Storage |
+| `CustomerSpawner` | 손님 생성 속도, 빵 냄새 | TimeService, Reputation, Progression, 손님용 Rng |
+| `CustomerSystem` | 손님 생성, 손님 두뇌(FSM) 갱신, 방문 계획, 구매 판단 | Spawner, Shelves, Pricing, CheckoutQueue |
+| `CheckoutService` | 결제 세션 | Customers, Pricing, Wallet |
+| `ObjectiveTracker` | 목표 리스트(온보딩), 데모 목표 | 이벤트 구독 |
+| `EconomyLedger` | 하루 집계, 일일 리포트 | 이벤트 구독 |
 | `SaveService` | 저장·불러오기 | 모든 모델의 스냅샷 |
+
+모든 시스템은 `EventBus`를 받는다 (표에서는 생략). 평판·경험치·리포트처럼 "일어난 일에 반응만 하는" 시스템은 다른 시스템을 직접 부르지 않고 이벤트만 구독한다.
+
+시스템을 만들고 연결하는 코드는 `GameComposer.Compose()`(순수 C#)에 있고 `GameBootstrap`은 그것을 부른 뒤 씬의 뷰를 연결한다. 그래서 EditMode 테스트에서도 씬 없이 게임 전체를 만들어 하루를 돌릴 수 있다. 시스템별 공개 API와 작업 순서는 [구현 계획](../plan/README.md)에 있다.
 
 ## 갱신 순서 (Tick)
 
 시스템마다 `Update()`를 따로 두지 않고, 부트스트랩이 정해진 순서로 한 번씩 호출한다.
 
 ```
-GameBootstrap.Update()
-  1. TimeService.Advance(Time.deltaTime)   → 이번 프레임의 simDelta 계산 (일시정지면 0)
+GameBootstrap.Update() → GameLoop.Tick(context, Time.deltaTime)
+  1. TimeService.Advance(realDelta)          → 이번 프레임의 simDelta 계산 (일시정지면 0)
   2. DayCycle.Tick()                         → 영업 종료 시각 확인, 단계 전환
-  3. OrderService.Tick(simDelta)             → 배송 도착 처리
-  4. OvenSystem.Tick(simDelta)               → 굽기 진행
-  5. CustomerSystem.Tick(simDelta)           → 손님 생성, 각 손님 FSM 갱신
+  3. OrderService.Tick()                     → 배송 도착 처리
+  4. OvenSystem.Tick()                       → 다 익음·탐 순간을 감지해 이벤트 발행
+  5. CustomerSystem.Tick()                   → 손님 생성(CustomerSpawner), 각 손님 FSM 갱신, 나간 손님 반환
 ```
 
 순서가 코드에 고정되어 있어 "오븐이 먼저 도는지 시간이 먼저 도는지"에 따라 결과가 바뀌는 문제가 없다. 뷰(MonoBehaviour)의 `Update`는 화면 표시만 한다.
@@ -105,34 +105,50 @@ public sealed class EventBus
     public void Subscribe<T>(Action<T> handler) where T : struct;
     public void Unsubscribe<T>(Action<T> handler) where T : struct;
     public void Publish<T>(in T evt) where T : struct;
+    public Action<Type, object> Trace;      // 개발용: 발행되는 모든 이벤트를 받는다
 }
 ```
 
 사용 원칙:
 
 - **이산적인 변화는 이벤트(push), 연속적인 값은 직접 읽기(pull).** 판매 완료·돈 변화·단계 전환은 이벤트로 알리고, 오븐 진행 바나 시계처럼 매 프레임 바뀌는 값은 뷰가 모델을 읽는다. 매 프레임 이벤트를 쏘지 않는다.
-- 뷰는 `OnEnable`에서 구독, `OnDisable`에서 해제한다. 해제를 빠뜨리면 풀에 돌아간 오브젝트가 계속 이벤트를 받는다.
+- 씬에 고정된 뷰는 `Init`에서 구독하고 `OnDestroy`에서 해제한다. 풀을 쓰는 뷰는 꺼낼 때 구독하고 돌려놓을 때 해제한다. 해제를 빠뜨리면 풀에 돌아간 오브젝트가 계속 이벤트를 받는다.
 - 개발 빌드에서는 발행되는 모든 이벤트를 로그로 남길 수 있는 옵션을 둔다. 트러블슈팅 때 "무슨 순서로 무엇이 일어났는지"를 확인하는 도구다.
 
 ### 이벤트 목록
 
 | 이벤트 | 내용 | 발행 |
 | --- | --- | --- |
-| `DayPhaseChanged` | 이전·다음 단계, 날짜 | DayCycle |
-| `MoneyChanged` | 잔액, 변화량, 사유(판매·발주·환불 등) | Wallet |
-| `StorageChanged` | 재료 ID, 변화량 | StorageInventory |
-| `OrderPlaced` / `OrderDelivered` | 주문 ID, 상품 ID | OrderService |
-| `BoxOpened` | 박스 ID, 나온 재료 목록, 최고 희귀도 | LootService |
-| `RecipeDiscovered` | 레시피 ID | RecipeBook |
-| `BakingStarted` / `BakingCollected` | 오븐 ID, 레시피 ID, 개수, 품질 | OvenSystem |
-| `ShelfChanged` | 선반 ID, 칸 번호 | ShelfSystem |
-| `PriceChanged` | 레시피 ID, 가격 | PricingService |
-| `CustomerEntered` / `CustomerLeft` | 손님 ID, 떠난 이유(구매 완료·원하는 빵 없음·너무 비쌈·대기 초과) | CustomerSystem |
-| `DemandMissed` | 레시피 ID (손님이 찾았지만 선반에 없던 빵) | CustomerSystem |
-| `TheftAttempted` / `TheftResolved` (MVP 이후) | 손님 ID, 레시피 ID, 결과(도주 성공·붙잡힘), 금액 ([07 문서](07-theft-and-disorder.md)) | CustomerSystem |
-| `SaleCompleted` | 손님 ID, 품목, 합계, 받은 돈, 거스름돈, 실수 여부 | CheckoutService |
-| `BreadDiscarded` | 레시피 ID, 개수, 손실액 | ShelfSystem, OvenSystem |
+| `DayPhaseChanged` | 날짜, 이전 단계, 다음 단계 | DayCycle |
+| `DayAdvanced` | 새 날짜 (하루 마무리 단계가 모두 끝난 뒤. 세이브가 이때 저장한다) | DayCycle |
 | `DaySettled` | 일일 리포트 | EconomyLedger |
+| `MoneyChanged` | 잔액, 변화량, 사유 (판매·발주·해금·임대료·되팔기·지원금) | Wallet |
+| `ReputationChanged` | 평판, 변화량 | ReputationService |
+| `XpGained` / `LevelUp` | 얻은 양과 누적 / 새 레벨 | ProgressionService |
+| `UnlockPurchased` | 해금 ID | UnlockService |
+| `StorageChanged` | 재료 ID, 변화량, 남은 수량 | StorageInventory |
+| `OrderPlaced` / `OrderDelivered` | 주문 ID, 상품 ID | OrderService |
+| `BoxOpened` | 상품 ID, 나온 재료 목록, 최고 희귀도 | BoxService |
+| `KeyIngredientFound` | 재료 ID, 짝이 되는 레시피 ID (처음 얻었을 때 한 번) | RecipeBook |
+| `ExperimentTried` | 핵심 재료 ID, 맞은 개수, 칸 수, 발견 여부 | RecipeBook |
+| `RecipeDiscovered` | 레시피 ID | RecipeBook |
+| `BakingStarted` | 오븐 ID, 레시피 ID | OvenSystem |
+| `OvenReady` / `OvenBurnt` | 오븐 ID (다 익은 순간 / 탄 순간에 한 번) | OvenSystem |
+| `BakingCollected` | 오븐 ID, 레시피 ID, 개수, 품질 | OvenSystem |
+| `TraysChanged` / `TrayEmptied` | 빈 트레이 수, 전체 트레이 수 / 비어서 돌아온 트레이의 개체 ID | TraySystem |
+| `ShelfChanged` | 진열대 ID, 칸 번호 | ShelfSystem |
+| `PriceChanged` | 레시피 ID, 판매가 | PricingService |
+| `AromaStarted` | 지속 시간 | CustomerSpawner |
+| `CustomerEntered` / `CustomerLeft` | 손님 ID, 성향 / 떠난 이유 | CustomerSystem |
+| `CustomerAtCounter` | 손님 ID (계산 위치에 도착) | CustomerSystem |
+| `CheckoutStarted` | 손님 ID, 품목, 결제 수단 | CheckoutService |
+| `DemandMissed` | 레시피 ID (찾았지만 진열대에 없던 빵) | CustomerSystem |
+| `PriceRejected` | 레시피 ID (있었지만 비싸거나 예산을 넘어 안 산 빵) | CustomerSystem |
+| `PaymentRejected` | 손님 ID (거스름돈 부족, 카드 과다 입력) | CheckoutService |
+| `SaleCompleted` | 손님 ID, 품목, 합계, 받은 금액, 결제 수단 (덜 받은 금액 = 받은 금액 − 합계) | CheckoutService |
+| `BreadDiscarded` | 레시피 ID, 개수, 판매가 기준 금액, 사유 (탐·보관 기한·오븐 비우기·쓰레기통·줄 이탈) | OvenSystem, ShelfSystem, TraySystem, CustomerSystem |
+| `ObjectiveCompleted` / `DemoGoalReached` | 목표 ID / - | ObjectiveTracker |
+| `TheftAttempted` / `TheftResolved` (MVP 이후) | 손님 ID, 레시피 ID, 결과, 금액 ([07 문서](07-theft-and-disorder.md)) | CustomerSystem |
 
 ### 예: 빵 하나가 팔릴 때
 
@@ -148,16 +164,16 @@ sequenceDiagram
     participant FX as SoundFX
 
     P->>CV: 거스름돈 건네기 확정
-    CV->>CS: ConfirmChange(amount)
-    CS->>W: Add(total)
+    CV->>CS: SubmitChange(amount)
+    CS->>W: Add(받은 금액)
     W->>Bus: MoneyChanged
     CS->>Bus: SaleCompleted
-    Bus-->>L: 매출 집계
+    Bus-->>L: 매출·빵별 판매 집계
     Bus-->>H: 잔액 갱신
     Bus-->>FX: 계산 완료음
 ```
 
-`CheckoutService`는 HUD나 사운드가 있는지 모른다. 판매 연출을 추가해도 결제 코드는 바뀌지 않는다.
+`CheckoutService`는 HUD나 사운드가 있는지 모른다. 경험치와 평판도 같은 `SaleCompleted`를 구독해 오른다. 판매에 반응하는 것을 추가해도 결제 코드는 바뀌지 않는다.
 
 ## 의존성 규칙
 

@@ -90,7 +90,21 @@ Assets/
 
 ### 단계별 빌드 태그
 
-로드맵의 각 단계를 마치면 태그를 남긴다. 예: `git tag v0.1-movement && git push origin v0.1-movement`
+로드맵의 마일스톤을 마치면 태그를 남긴다 (`v0.1-movement`, `v0.2-core`, `v0.3-production`, `v0.4-day-loop`, `v0.5-growth`, `v1.0-mvp`). 예: `git tag v0.1-movement && git push origin v0.1-movement`
+
+## 도구 (`Tools/`)
+
+Unity 밖에서 도는 파이썬 스크립트다. 파이썬 3만 있으면 되고 추가 패키지가 필요 없다. 저장소 맨 위 폴더에서 실행한다.
+
+| 명령 | 하는 일 | 언제 |
+| --- | --- | --- |
+| `python3 Tools/balance/simulate.py --out Tools/balance/latest_report.md` | `content.json`의 수치로 하루 영업, 가격, 준비량, 박스, 성장 속도를 시뮬레이션해 [결과](../Tools/balance/latest_report.md)를 쓴다 (1~2분) | 수치나 규칙을 바꿨을 때 |
+| `python3 Tools/balance/simulate.py --quick` | 표본을 줄여 빠르게 화면에만 출력한다 | 수치를 조정하는 중에 |
+| `python3 Tools/balance/simulate.py --compare-day-old` | 하루 지난 빵 규칙 두 가지를 비교한다 ([TS-001](troubleshooting/TS-001-day-old-bread-blocks-shelf.md)) | 진열·구매 규칙을 바꿨을 때 |
+| `python3 Tools/docs/content_tables.py` | `content.json`으로 [콘텐츠 표](design/12-content-tables.md)를 다시 만든다 | 수치를 바꿨을 때 |
+| `python3 Tools/docs/shop_layout.py` | `shop_layout.json`으로 [평면도](images/shop-layout.svg)를 다시 그린다 | 매장 배치를 바꿨을 때 |
+
+코드의 폴더·네임스페이스·작성 규칙은 [코드 작성 규칙](CONVENTIONS.md)에, 작업 순서는 [구현 계획](plan/README.md)에 있다. 위의 폴더 구조 표는 프로젝트를 만들 때의 구성이고, `Scripts/` 아래의 최신 구성은 코드 작성 규칙을 따른다.
 
 ## 참고: Git LFS 용량
 

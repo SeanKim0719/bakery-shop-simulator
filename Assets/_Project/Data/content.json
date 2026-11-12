@@ -1,0 +1,243 @@
+{
+    "version": 1,
+    "config": {
+        "day": {
+            "openMinutes": 540,
+            "closeMinutes": 1080,
+            "openRealSeconds": 360,
+            "spawnCurve": [[540, 0.6], [600, 0.8], [660, 1.2], [720, 1.6], [780, 1.0], [840, 0.7], [900, 0.8], [960, 1.2], [1020, 1.5], [1080, 1.5]]
+        },
+        "economy": {
+            "startMoney": 50000,
+            "moneyFloor": 25000,
+            "rentByLevel": [8000, 10000, 15000, 20000, 25000],
+            "qualityPriceMultiplier": { "Undercooked": 0.7, "Normal": 1.0, "Perfect": 1.2 },
+            "priceStep": 100,
+            "priceMinRatio": 0.5,
+            "priceMaxRatio": 2.5,
+            "startTrays": 3,
+            "startRecipes": ["bread.white", "bread.redbean", "bread.croissant"],
+            "startStorage": [
+                { "id": "ing.flour", "count": 20 },
+                { "id": "ing.milk", "count": 6 },
+                { "id": "ing.egg", "count": 3 },
+                { "id": "ing.butter", "count": 9 },
+                { "id": "ing.redbean", "count": 6 },
+                { "id": "ing.sugar", "count": 3 }
+            ]
+        },
+        "oven": {
+            "minCollectProgress": 0.5
+        },
+        "shelf": {
+            "slotsPerShelf": 3,
+            "slotCapacity": 6
+        },
+        "customers": {
+            "baseCountByLevel": [12, 16, 20, 24, 28],
+            "maxConcurrent": 10,
+            "queueSlots": 5,
+            "reputationSpawnMin": 0.7,
+            "reputationSpawnMax": 1.3,
+            "dayOldPriceMultiplier": 0.7,
+            "undercookedMultiplier": 0.6,
+            "browseSecondsPerItem": 4,
+            "aromaSeconds": 60,
+            "aromaSpawnMultiplier": 1.4
+        },
+        "reputation": {
+            "start": 500,
+            "min": 0,
+            "max": 1000,
+            "saleCompleted": 1,
+            "leftNoStock": -4,
+            "leftTooExpensive": -2,
+            "leftQueueTimeout": -10,
+            "paymentComplaint": -5,
+            "recipeDiscovered": 20
+        },
+        "progression": {
+            "xpThresholds": [0, 40, 130, 280, 540],
+            "xpPerBread": 1,
+            "xpPerfectBonus": 1,
+            "xpSecretBonus": 2,
+            "xpDiscovery": 20,
+            "xpDayComplete": 5,
+            "demoGoalLevel": 5,
+            "demoGoalSecretRecipes": 2
+        },
+        "delivery": {
+            "seconds": 20
+        }
+    },
+    "ingredients": [
+        { "id": "ing.flour", "name": "밀가루", "rarity": "Common", "resellPrice": 300 },
+        { "id": "ing.butter", "name": "버터", "rarity": "Common", "resellPrice": 700 },
+        { "id": "ing.sugar", "name": "설탕", "rarity": "Common", "resellPrice": 200 },
+        { "id": "ing.milk", "name": "우유", "rarity": "Common", "resellPrice": 300 },
+        { "id": "ing.egg", "name": "달걀", "rarity": "Common", "resellPrice": 300 },
+        { "id": "ing.redbean", "name": "팥앙금", "rarity": "Common", "resellPrice": 500 },
+        { "id": "ing.salt", "name": "소금", "rarity": "Common", "resellPrice": 100 },
+        { "id": "ing.chocolate", "name": "초콜릿", "rarity": "Fine", "resellPrice": 1200 },
+        { "id": "ing.almond", "name": "아몬드", "rarity": "Fine", "resellPrice": 2000 },
+        { "id": "ing.matcha", "name": "말차", "rarity": "Rare", "resellPrice": 6000 },
+        { "id": "ing.truffle_salt", "name": "트러플 소금", "rarity": "Rare", "resellPrice": 8000 },
+        { "id": "ing.golden_butter", "name": "황금 버터", "rarity": "Legendary", "resellPrice": 25000 }
+    ],
+    "recipes": [
+        {
+            "id": "bread.white", "name": "식빵", "secret": false,
+            "ingredients": [{ "id": "ing.flour", "count": 3 }, { "id": "ing.milk", "count": 2 }, { "id": "ing.egg", "count": 1 }],
+            "yield": 4, "marketPrice": 3500, "bakeSeconds": 50, "perfectWindowSeconds": 8, "burnAfterSeconds": 30, "shelfLifeDays": 2
+        },
+        {
+            "id": "bread.redbean", "name": "단팥빵", "secret": false,
+            "ingredients": [{ "id": "ing.flour", "count": 2 }, { "id": "ing.redbean", "count": 2 }, { "id": "ing.sugar", "count": 1 }],
+            "yield": 6, "marketPrice": 2000, "bakeSeconds": 40, "perfectWindowSeconds": 8, "burnAfterSeconds": 30, "shelfLifeDays": 1
+        },
+        {
+            "id": "bread.croissant", "name": "크루아상", "secret": false,
+            "ingredients": [{ "id": "ing.flour", "count": 2 }, { "id": "ing.butter", "count": 3 }],
+            "yield": 6, "marketPrice": 3000, "bakeSeconds": 45, "perfectWindowSeconds": 8, "burnAfterSeconds": 30, "shelfLifeDays": 1
+        },
+        {
+            "id": "bread.saltbutter", "name": "소금빵", "secret": false,
+            "ingredients": [{ "id": "ing.flour", "count": 2 }, { "id": "ing.butter", "count": 2 }, { "id": "ing.salt", "count": 1 }],
+            "yield": 6, "marketPrice": 3200, "bakeSeconds": 40, "perfectWindowSeconds": 8, "burnAfterSeconds": 30, "shelfLifeDays": 1
+        },
+        {
+            "id": "bread.baguette", "name": "바게트", "secret": false,
+            "ingredients": [{ "id": "ing.flour", "count": 4 }, { "id": "ing.salt", "count": 1 }],
+            "yield": 3, "marketPrice": 4500, "bakeSeconds": 65, "perfectWindowSeconds": 8, "burnAfterSeconds": 30, "shelfLifeDays": 2
+        },
+        {
+            "id": "bread.choco_cornet", "name": "초코 소라빵", "secret": false,
+            "ingredients": [{ "id": "ing.flour", "count": 2 }, { "id": "ing.milk", "count": 1 }, { "id": "ing.sugar", "count": 1 }, { "id": "ing.chocolate", "count": 2 }],
+            "yield": 6, "marketPrice": 3800, "bakeSeconds": 45, "perfectWindowSeconds": 8, "burnAfterSeconds": 30, "shelfLifeDays": 1
+        },
+        {
+            "id": "bread.almond_croissant", "name": "아몬드 크루아상", "secret": true, "keyIngredient": "ing.almond",
+            "hint": "평범한 크루아상에 고소한 무언가를 더하면…",
+            "ingredients": [{ "id": "ing.flour", "count": 2 }, { "id": "ing.butter", "count": 3 }, { "id": "ing.almond", "count": 1 }],
+            "yield": 6, "marketPrice": 4800, "bakeSeconds": 45, "perfectWindowSeconds": 8, "burnAfterSeconds": 30, "shelfLifeDays": 1
+        },
+        {
+            "id": "bread.matcha_redbean", "name": "말차 단팥빵", "secret": true, "keyIngredient": "ing.matcha",
+            "hint": "쌉싸름한 초록빛은 달콤한 앙금과 잘 어울린다.",
+            "ingredients": [{ "id": "ing.flour", "count": 2 }, { "id": "ing.redbean", "count": 2 }, { "id": "ing.matcha", "count": 1 }],
+            "yield": 6, "marketPrice": 5000, "bakeSeconds": 40, "perfectWindowSeconds": 8, "burnAfterSeconds": 30, "shelfLifeDays": 1
+        },
+        {
+            "id": "bread.truffle_salt", "name": "트러플 소금빵", "secret": true, "keyIngredient": "ing.truffle_salt",
+            "hint": "흔한 소금 대신 귀한 소금을 쓴다면?",
+            "ingredients": [{ "id": "ing.flour", "count": 2 }, { "id": "ing.butter", "count": 2 }, { "id": "ing.truffle_salt", "count": 1 }],
+            "yield": 6, "marketPrice": 7000, "bakeSeconds": 40, "perfectWindowSeconds": 8, "burnAfterSeconds": 30, "shelfLifeDays": 1
+        },
+        {
+            "id": "bread.golden_brioche", "name": "황금 브리오슈", "secret": true, "keyIngredient": "ing.golden_butter",
+            "hint": "버터가 주인공인 빵. 달걀과 설탕이 넉넉히 들어간다.",
+            "ingredients": [{ "id": "ing.flour", "count": 2 }, { "id": "ing.egg", "count": 2 }, { "id": "ing.sugar", "count": 1 }, { "id": "ing.golden_butter", "count": 1 }],
+            "yield": 4, "marketPrice": 15000, "bakeSeconds": 60, "perfectWindowSeconds": 8, "burnAfterSeconds": 30, "shelfLifeDays": 1
+        }
+    ],
+    "products": [
+        { "id": "product.flour", "name": "밀가루 10개", "kind": "IngredientPack", "cost": 6000, "requiredLevel": 1, "contents": [{ "id": "ing.flour", "count": 10 }] },
+        { "id": "product.butter", "name": "버터 10개", "kind": "IngredientPack", "cost": 15000, "requiredLevel": 1, "contents": [{ "id": "ing.butter", "count": 10 }] },
+        { "id": "product.sugar", "name": "설탕 10개", "kind": "IngredientPack", "cost": 5000, "requiredLevel": 1, "contents": [{ "id": "ing.sugar", "count": 10 }] },
+        { "id": "product.milk", "name": "우유 10개", "kind": "IngredientPack", "cost": 7000, "requiredLevel": 1, "contents": [{ "id": "ing.milk", "count": 10 }] },
+        { "id": "product.egg", "name": "달걀 10개", "kind": "IngredientPack", "cost": 6000, "requiredLevel": 1, "contents": [{ "id": "ing.egg", "count": 10 }] },
+        { "id": "product.redbean", "name": "팥앙금 10개", "kind": "IngredientPack", "cost": 10000, "requiredLevel": 1, "contents": [{ "id": "ing.redbean", "count": 10 }] },
+        { "id": "product.salt", "name": "소금 10개", "kind": "IngredientPack", "cost": 3000, "requiredLevel": 1, "contents": [{ "id": "ing.salt", "count": 10 }] },
+        { "id": "product.chocolate", "name": "초콜릿 5개", "kind": "IngredientPack", "cost": 10000, "requiredLevel": 4, "contents": [{ "id": "ing.chocolate", "count": 5 }] },
+        { "id": "product.box.basic", "name": "농장 직송 미스터리 박스", "kind": "MysteryBox", "cost": 12000, "requiredLevel": 2, "lootTable": "loot.basic" },
+        { "id": "product.box.premium", "name": "명인의 미스터리 박스", "kind": "MysteryBox", "cost": 35000, "requiredLevel": 4, "lootTable": "loot.premium" }
+    ],
+    "lootTables": [
+        {
+            "id": "loot.basic", "rollsPerBox": 5, "pityThreshold": 5, "pityMinRarity": "Rare",
+            "entries": [
+                { "id": "ing.flour", "weight": 14, "count": 2 },
+                { "id": "ing.butter", "weight": 12, "count": 1 },
+                { "id": "ing.sugar", "weight": 10, "count": 2 },
+                { "id": "ing.milk", "weight": 12, "count": 1 },
+                { "id": "ing.egg", "weight": 12, "count": 2 },
+                { "id": "ing.redbean", "weight": 10, "count": 1 },
+                { "id": "ing.salt", "weight": 8, "count": 2 },
+                { "id": "ing.chocolate", "weight": 9, "count": 1 },
+                { "id": "ing.almond", "weight": 8, "count": 1 },
+                { "id": "ing.matcha", "weight": 2.25, "count": 1 },
+                { "id": "ing.truffle_salt", "weight": 2.25, "count": 1 },
+                { "id": "ing.golden_butter", "weight": 0.5, "count": 1 }
+            ]
+        },
+        {
+            "id": "loot.premium", "rollsPerBox": 5, "pityThreshold": 2, "pityMinRarity": "Rare",
+            "entries": [
+                { "id": "ing.flour", "weight": 9, "count": 2 },
+                { "id": "ing.butter", "weight": 12, "count": 2 },
+                { "id": "ing.sugar", "weight": 5, "count": 2 },
+                { "id": "ing.milk", "weight": 6, "count": 2 },
+                { "id": "ing.egg", "weight": 7, "count": 2 },
+                { "id": "ing.redbean", "weight": 6, "count": 2 },
+                { "id": "ing.salt", "weight": 3, "count": 2 },
+                { "id": "ing.chocolate", "weight": 20, "count": 2 },
+                { "id": "ing.almond", "weight": 12, "count": 1 },
+                { "id": "ing.matcha", "weight": 8.5, "count": 1 },
+                { "id": "ing.truffle_salt", "weight": 8.5, "count": 1 },
+                { "id": "ing.golden_butter", "weight": 3, "count": 1 }
+            ]
+        }
+    ],
+    "customerProfiles": [
+        {
+            "id": "customer.student", "name": "학생",
+            "spawnWeightByLevel": [5, 5, 4, 4, 4],
+            "budgetMin": 3000, "budgetMax": 8000, "maxItems": 2, "patienceSeconds": 70, "cashRatio": 0.6,
+            "priceSensitivity": [[0.7, 1.0], [1.0, 0.95], [1.1, 0.85], [1.2, 0.6], [1.35, 0.25], [1.5, 0.05], [1.7, 0.0]],
+            "defaultPreference": 1,
+            "preferences": [
+                { "id": "bread.redbean", "weight": 5 }, { "id": "bread.saltbutter", "weight": 5 }, { "id": "bread.choco_cornet", "weight": 5 },
+                { "id": "bread.croissant", "weight": 3 }, { "id": "bread.white", "weight": 1 }, { "id": "bread.baguette", "weight": 0.5 },
+                { "id": "bread.almond_croissant", "weight": 2 }, { "id": "bread.matcha_redbean", "weight": 3 },
+                { "id": "bread.truffle_salt", "weight": 0.5 }, { "id": "bread.golden_brioche", "weight": 0.2 }
+            ]
+        },
+        {
+            "id": "customer.worker", "name": "직장인",
+            "spawnWeightByLevel": [4, 5, 5, 5, 5],
+            "budgetMin": 7000, "budgetMax": 18000, "maxItems": 3, "patienceSeconds": 50, "cashRatio": 0.2,
+            "priceSensitivity": [[0.7, 1.0], [1.0, 0.97], [1.15, 0.9], [1.3, 0.7], [1.5, 0.35], [1.8, 0.05], [2.0, 0.0]],
+            "defaultPreference": 1,
+            "preferences": [
+                { "id": "bread.white", "weight": 4 }, { "id": "bread.croissant", "weight": 5 }, { "id": "bread.baguette", "weight": 4 },
+                { "id": "bread.saltbutter", "weight": 3 }, { "id": "bread.redbean", "weight": 2 }, { "id": "bread.choco_cornet", "weight": 2 },
+                { "id": "bread.almond_croissant", "weight": 4 }, { "id": "bread.matcha_redbean", "weight": 2 },
+                { "id": "bread.truffle_salt", "weight": 2 }, { "id": "bread.golden_brioche", "weight": 1 }
+            ]
+        },
+        {
+            "id": "customer.gourmet", "name": "미식가",
+            "spawnWeightByLevel": [0, 0, 1.5, 2, 2.5],
+            "budgetMin": 20000, "budgetMax": 50000, "maxItems": 2, "patienceSeconds": 80, "cashRatio": 0.1,
+            "priceSensitivity": [[0.7, 1.0], [1.0, 0.98], [1.3, 0.9], [1.6, 0.6], [2.0, 0.2], [2.5, 0.0]],
+            "defaultPreference": 1,
+            "preferences": [
+                { "id": "bread.truffle_salt", "weight": 8 }, { "id": "bread.golden_brioche", "weight": 6 },
+                { "id": "bread.almond_croissant", "weight": 5 }, { "id": "bread.matcha_redbean", "weight": 5 },
+                { "id": "bread.baguette", "weight": 3 }, { "id": "bread.croissant", "weight": 2 }, { "id": "bread.saltbutter", "weight": 2 },
+                { "id": "bread.white", "weight": 1 }, { "id": "bread.redbean", "weight": 1 }, { "id": "bread.choco_cornet", "weight": 1 }
+            ]
+        }
+    ],
+    "unlocks": [
+        { "id": "unlock.recipe.saltbutter", "name": "소금빵 레시피", "kind": "RecipeLicense", "target": "bread.saltbutter", "requiredLevel": 2, "cost": 40000 },
+        { "id": "unlock.tray.4", "name": "트레이 추가 (4개째)", "kind": "Tray", "target": "", "requiredLevel": 2, "cost": 15000 },
+        { "id": "unlock.shelf.03", "name": "진열대 3", "kind": "Furniture", "target": "shelf.03", "requiredLevel": 2, "cost": 60000 },
+        { "id": "unlock.recipe.baguette", "name": "바게트 레시피", "kind": "RecipeLicense", "target": "bread.baguette", "requiredLevel": 3, "cost": 70000 },
+        { "id": "unlock.oven.02", "name": "오븐 2", "kind": "Furniture", "target": "oven.02", "requiredLevel": 3, "cost": 150000 },
+        { "id": "unlock.tray.5", "name": "트레이 추가 (5개째)", "kind": "Tray", "target": "", "requiredLevel": 3, "cost": 25000 },
+        { "id": "unlock.recipe.choco_cornet", "name": "초코 소라빵 레시피", "kind": "RecipeLicense", "target": "bread.choco_cornet", "requiredLevel": 4, "cost": 110000 },
+        { "id": "unlock.shelf.04", "name": "진열대 4", "kind": "Furniture", "target": "shelf.04", "requiredLevel": 4, "cost": 120000 },
+        { "id": "unlock.tray.6", "name": "트레이 추가 (6개째)", "kind": "Tray", "target": "", "requiredLevel": 4, "cost": 40000 }
+    ]
+}

@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 872 770" width="872" height="770">
+<rect width="872" height="770" fill="#ffffff"/>
+<rect x="40.0" y="568.0" width="792.0" height="132.0" fill="#eeeeee" stroke="#bbbbbb" stroke-width="1"/>
+<text x="722.0" y="682.4" font-size="12" text-anchor="middle" fill="#666666" font-weight="400" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">인도 (손님이 걸어오는 길)</text>
+<rect x="216.0" y="40.0" width="440.0" height="528.0" fill="#fbf7ee" stroke="none" stroke-width="1.5"/>
+<rect x="216.0" y="40.0" width="440.0" height="112.2" fill="#fdebd8" stroke="none" stroke-width="1.5"/>
+<text x="550.4" y="123.6" font-size="13" text-anchor="middle" fill="#b0703a" font-weight="600" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">주방</text>
+<rect x="484.4" y="471.2" width="171.6" height="96.8" fill="#e4eef8" stroke="none" stroke-width="1.5"/>
+<text x="541.6" y="537.2" font-size="13" text-anchor="middle" fill="#2f6aa0" font-weight="600" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">계산 구역</text>
+<text x="321.6" y="202.8" font-size="13" text-anchor="middle" fill="#8a7a50" font-weight="600" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">매장</text>
+<line x1="216.0" y1="40.0" x2="656.0" y2="40.0" stroke="#3d3a34" stroke-width="5" stroke-linecap="square"/>
+<line x1="216.0" y1="568.0" x2="216.0" y2="40.0" stroke="#3d3a34" stroke-width="5" stroke-linecap="square"/>
+<line x1="656.0" y1="568.0" x2="656.0" y2="40.0" stroke="#3d3a34" stroke-width="5" stroke-linecap="square"/>
+<line x1="216.0" y1="568.0" x2="304.0" y2="568.0" stroke="#3d3a34" stroke-width="5" stroke-linecap="square"/>
+<line x1="374.4" y1="568.0" x2="656.0" y2="568.0" stroke="#3d3a34" stroke-width="5" stroke-linecap="square"/>
+<text x="339.2" y="586.0" font-size="12" text-anchor="middle" fill="#3d3a34" font-weight="600" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">출입문</text>
+<rect x="484.4" y="436.0" width="132.0" height="35.2" fill="#d9d2c5" stroke="#6b6457" stroke-width="1.5"/>
+<rect x="480.0" y="471.2" width="4.4" height="96.8" fill="#8a8478" stroke="#5a554c" stroke-width="1.5"/>
+<rect x="614.2" y="528.4" width="39.6" height="35.2" fill="#d9d2c5" stroke="#6b6457" stroke-width="1.5"/>
+<rect x="220.4" y="339.2" width="26.4" height="105.6" fill="#f2c078" stroke="#9a6a1e" stroke-width="1.5"/>
+<rect x="220.4" y="207.2" width="26.4" height="105.6" fill="#f2c078" stroke="#9a6a1e" stroke-width="1.5"/>
+<rect x="365.6" y="273.2" width="26.4" height="105.6" fill="#ffffff" stroke="#9a6a1e" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="392.0" y="273.2" width="26.4" height="105.6" fill="#ffffff" stroke="#9a6a1e" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="216.0" y="152.2" width="325.6" height="22.0" fill="#d9d2c5" stroke="#6b6457" stroke-width="1.5"/>
+<rect x="282.0" y="44.4" width="79.2" height="35.2" fill="#d9d2c5" stroke="#6b6457" stroke-width="1.5"/>
+<rect x="387.6" y="42.2" width="52.8" height="39.6" fill="#e8866a" stroke="#8f3b25" stroke-width="1.5"/>
+<rect x="462.4" y="42.2" width="52.8" height="39.6" fill="#ffffff" stroke="#9a6a1e" stroke-width="1.5" stroke-dasharray="5 4"/>
+<rect x="616.4" y="44.4" width="35.2" height="79.2" fill="#9cc3e6" stroke="#2f6aa0" stroke-width="1.5"/>
+<rect x="224.8" y="97.2" width="26.4" height="26.4" fill="#d9d2c5" stroke="#6b6457" stroke-width="1.5"/>
+<text x="550.4" y="457.6" font-size="11" text-anchor="middle" fill="#2b2b2b" font-weight="400" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">계산대</text>
+<text x="634.0" y="550.0" font-size="11" text-anchor="middle" fill="#2b2b2b" font-weight="400" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">발주 PC</text>
+<text transform="translate(233.6,392.0) rotate(-90)" font-size="11" text-anchor="middle" dy="4" fill="#2b2b2b" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">진열대 1</text>
+<text transform="translate(233.6,260.0) rotate(-90)" font-size="11" text-anchor="middle" dy="4" fill="#2b2b2b" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">진열대 2</text>
+<text x="378.8" y="398.2" font-size="11" text-anchor="middle" fill="#2b2b2b" font-weight="400" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">진열대 3 (Lv.2)</text>
+<text x="405.2" y="257.4" font-size="11" text-anchor="middle" fill="#2b2b2b" font-weight="400" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">진열대 4 (Lv.4)</text>
+<text x="378.8" y="167.2" font-size="11" text-anchor="middle" fill="#2b2b2b" font-weight="400" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">주방 카운터</text>
+<text x="321.6" y="66.0" font-size="11" text-anchor="middle" fill="#2b2b2b" font-weight="400" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">작업대</text>
+<text x="414.0" y="66.0" font-size="11" text-anchor="middle" fill="#2b2b2b" font-weight="400" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">오븐 1</text>
+<text x="488.8" y="66.0" font-size="11" text-anchor="middle" fill="#2b2b2b" font-weight="400" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">오븐 2 (Lv.3)</text>
+<text transform="translate(634.0,84.0) rotate(-90)" font-size="11" text-anchor="middle" dy="4" fill="#2b2b2b" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">창고 선반</text>
+<text x="238.0" y="92.4" font-size="11" text-anchor="middle" fill="#2b2b2b" font-weight="400" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">쓰레기통</text>
+<circle cx="436.0" cy="480.0" r="5" fill="#2f6aa0"/>
+<circle cx="550.4" cy="493.2" r="5" fill="#2f6aa0"/>
+<circle cx="550.4" cy="414.0" r="5" fill="#3c8d5a"/>
+<circle cx="550.4" cy="370.0" r="5" fill="#3c8d5a"/>
+<circle cx="550.4" cy="326.0" r="5" fill="#3c8d5a"/>
+<circle cx="550.4" cy="282.0" r="5" fill="#3c8d5a"/>
+<circle cx="550.4" cy="238.0" r="5" fill="#3c8d5a"/>
+<circle cx="339.2" cy="524.0" r="5" fill="#3c8d5a"/>
+<circle cx="62.0" cy="634.0" r="5" fill="#3c8d5a"/>
+<circle cx="810.0" cy="634.0" r="5" fill="#3c8d5a"/>
+<circle cx="251.2" cy="625.2" r="5" fill="#8f3b25"/>
+<circle cx="387.6" cy="565.8" r="5" fill="#7a4fa3"/>
+<text x="436.0" y="470.0" font-size="11" text-anchor="middle" fill="#2f6aa0" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">플레이어 시작</text>
+<text x="550.4" y="511.2" font-size="11" text-anchor="middle" fill="#2f6aa0" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">계산 자리</text>
+<text x="560.4" y="418.0" font-size="11" text-anchor="start" fill="#3c8d5a" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">손님 계산 위치</text>
+<text x="560.4" y="242.0" font-size="11" text-anchor="start" fill="#3c8d5a" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">계산 줄 (4자리)</text>
+<text x="349.2" y="528.0" font-size="11" text-anchor="start" fill="#3c8d5a" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">손님 입장 지점</text>
+<text x="62.0" y="654.0" font-size="11" text-anchor="middle" fill="#3c8d5a" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">손님 생성·퇴장 (서)</text>
+<text x="810.0" y="654.0" font-size="11" text-anchor="middle" fill="#3c8d5a" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">손님 생성·퇴장 (동)</text>
+<text x="251.2" y="645.2" font-size="11" text-anchor="middle" fill="#8f3b25" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">배송 지점</text>
+<text x="395.6" y="557.8" font-size="11" text-anchor="start" fill="#7a4fa3" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">영업 팻말</text>
+<polyline points="550.4,493.2 636.2,493.2 636.2,132.4 414.0,101.6" fill="none" stroke="#2f6aa0" stroke-width="2" stroke-dasharray="6 5"/>
+<text transform="translate(625.2,312.8) rotate(-90)" font-size="11" text-anchor="middle" fill="#2f6aa0" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">직원 동선 (약 14m)</text>
+<line x1="57.6" y1="66.4" x2="145.6" y2="66.4" stroke="#333" stroke-width="2"/>
+<text x="101.6" y="60.4" font-size="11" text-anchor="middle" fill="#2b2b2b" font-weight="400" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">2 m</text>
+<text x="101.6" y="106.0" font-size="11" text-anchor="middle" fill="#2b2b2b" font-weight="400" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">북 ↑ (+z)   동 → (+x)</text>
+<rect x="40" y="737.0" width="14" height="14" fill="#f2c078" stroke="#666"/>
+<text x="60" y="748.0" font-size="11" fill="#333" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">진열대</text>
+<rect x="116" y="737.0" width="14" height="14" fill="#ffffff" stroke="#666" stroke-dasharray="4 3"/>
+<text x="136" y="748.0" font-size="11" fill="#333" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">잠긴 가구 (레벨 해금)</text>
+<rect x="312" y="737.0" width="14" height="14" fill="#e8866a" stroke="#666"/>
+<text x="332" y="748.0" font-size="11" fill="#333" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">오븐</text>
+<rect x="376" y="737.0" width="14" height="14" fill="#9cc3e6" stroke="#666"/>
+<text x="396" y="748.0" font-size="11" fill="#333" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">창고</text>
+<rect x="440" y="737.0" width="14" height="14" fill="#d9d2c5" stroke="#666"/>
+<text x="460" y="748.0" font-size="11" fill="#333" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">기타 가구</text>
+<circle cx="547" cy="744.0" r="5" fill="#3c8d5a"/>
+<text x="560" y="748.0" font-size="11" fill="#333" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">손님 지점</text>
+<circle cx="647" cy="744.0" r="5" fill="#2f6aa0"/>
+<text x="660" y="748.0" font-size="11" fill="#333" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">플레이어 지점</text>
+<circle cx="771" cy="744.0" r="5" fill="#8f3b25"/>
+<text x="784" y="748.0" font-size="11" fill="#333" font-family="Pretendard, 'Noto Sans CJK KR', 'Malgun Gothic', sans-serif">배송</text>
+</svg>

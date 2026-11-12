@@ -11,6 +11,10 @@
 | [0005](0005-save-between-days.md) | 저장은 하루와 하루 사이에만 | 확정 | 2026-10-15 |
 | [0006](0006-day-based-freshness.md) | 신선도를 실시간 대신 날짜 단위로 | 확정 | 2026-10-15 |
 | [0007](0007-theft-security-after-mvp.md) | 절도·보안은 MVP 이후로, 진열장 파손 대신 흐트러뜨리기 | 확정 | 2026-11-01 |
+| [0008](0008-progression-and-locked-furniture.md) | 경험치·레벨로 성장하고, 가구는 "잠긴 가구"를 해금 | 확정 | 2026-11-11 |
+| [0009](0009-content-json-pipeline.md) | 수치는 `content.json` 한 파일에 두고 ScriptableObject로 가져오기 | 확정 | 2026-11-11 |
+| [0010](0010-trays-aroma-dayold-discount.md) | 트레이 수 제한, 빵 냄새, 하루 지난 빵 할인 (0006의 구매 확률 감소를 대체) | 확정 | 2026-11-11 |
+| [0011](0011-experiment-feedback.md) | 레시피 실험은 "맞은 개수"를 알려주고 핵심 재료를 소모하지 않음 | 확정 | 2026-11-11 |
 
 ## 새 기록 작성법
 
