@@ -4,7 +4,9 @@
     "references": [
         "BakeryShop.Runtime",
         "Unity.InputSystem",
-        "UnityEngine.UI"
+        "Unity.AI.Navigation",
+        "UnityEngine.UI",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [
         "Editor"

@@ -545,7 +545,7 @@ namespace BakeryShop.Economy
 
     public sealed class ReputationService
     {
-        public ReputationService(EventBus bus, ReputationConfig config);
+        public ReputationService(EventBus bus, ReputationConfig reputation, CustomerConfig customers);   // 손님 수 배율의 범위는 customers에 있다
         public int Value { get; }                 // 0 ~ 1000
         public float Stars { get; }               // 0 ~ 5, 0.5 단위
         public float SpawnMultiplier { get; }     // 0.7 ~ 1.3
@@ -580,11 +580,15 @@ namespace BakeryShop.Economy
 
 **규칙**
 
-- `Wallet.Add`, `TrySpend`, `ForceSpend`의 금액이 음수면 예외. 0이면 아무 일도 하지 않고 이벤트도 없다.
-- `ReputationService.Add`는 0~1000으로 자른다. 실제로 값이 바뀌었을 때만 `ReputationChanged`를 발행한다.
-- `Stars` = `Value ÷ 200`을 0.5 단위로 내림. `SpawnMultiplier` = `0.7 + 0.6 × Value ÷ 1000` (설정값 `reputationSpawnMin/Max`에서 읽는다).
+- `Wallet.Add`, `TrySpend`, `ForceSpend`, `CanAfford`의 금액이 음수면 예외. 0이면 아무 일도 하지 않고 이벤트도 없다 (`TrySpend(0)`은 `true`).
+- 잔액 계산은 `checked`로 한다. int의 범위를 넘으면 조용히 음수로 돌아가지 않고 `OverflowException`이 난다.
+- `ReputationService.Add`는 설정의 `min`~`max`(기본 0~1000)로 자른다. 실제로 값이 바뀌었을 때만 `ReputationChanged`를 발행하고, `Delta`는 실제로 바뀐 양이다.
+- `ReputationService.Restore`는 범위를 벗어난 값을 범위 안으로 자른다.
+- `Stars` = `Value ÷ 200`을 0.5 단위로 내림 (정수 계산: 반 개의 수 = `(Value − min) × 10 ÷ (max − min)`). `SpawnMultiplier` = `0.7 + 0.6 × Value ÷ 1000` (설정값 `reputationSpawnMin/Max`에서 읽는다).
 - `LevelFor`: 경험치가 `thresholds[i]` 이상인 가장 큰 `i`에 1을 더한 값. 기본 설정 `[0, 40, 130, 280, 540]`에서 39 → 1, 40 → 2, 540 → 5, 9999 → 5.
-- `AddXp`는 `XpGained`를 발행하고, 레벨이 오르면 `LevelUp`을 발행한다. 한 번에 두 레벨이 오르면 `LevelUp`을 레벨마다 순서대로 발행한다.
+- `AddXp`는 `XpGained`를 발행하고, 레벨이 오르면 `LevelUp`을 발행한다. 한 번에 두 레벨이 오르면 `LevelUp`을 레벨마다 순서대로 발행한다. 음수는 예외, 0은 아무 일도 하지 않는다. 최고 레벨에서도 경험치는 계속 쌓인다.
+- 레벨은 따로 저장하지 않고 경험치에서 계산한다 (`Level => LevelMath.LevelFor(Xp, …)`).
+- `MoneyFormat`은 `InvariantCulture`로 쓴다. 컴퓨터의 지역 설정이 달라도 천 단위는 쉼표다. `Signed(0)`은 `"0"`.
 - `Restore~`는 이벤트를 발행하지 않는다.
 - `MoneyChanged.Reason`에 "계산 실수"는 없다. 덜 받은 금액은 판매 이벤트의 합계와 받은 금액의 차이로 리포트가 계산한다.
 
@@ -594,7 +598,7 @@ namespace BakeryShop.Economy
 - `ReputationService`: 시작값 500, 위아래로 자르기, 변화가 없으면 이벤트 없음, 별(0 → 0, 500 → 2.5, 599 → 2.5, 600 → 3, 1000 → 5), 배율(0 → 0.7, 500 → 1.0, 1000 → 1.3)
 - `LevelMath`: 경계값 (0, 39, 40, 129, 130, 540, 9999)
 - `ProgressionService`: 경험치 누적, 레벨 업 이벤트, 한 번에 두 레벨, 최고 레벨에서 `XpForNextLevel`이 -1, `Restore`는 이벤트 없음
-- `MoneyFormat`: 0, 999, 1000, 152300, 음수
+- `MoneyFormat`: 0, 999, 1000, 152300, 음수, 지역 설정을 독일어로 바꿔도 같은 결과
 
 **의존**: M2-01, M2-05 (설정 타입)
 
@@ -604,20 +608,31 @@ namespace BakeryShop.Economy
 
 **파일**
 
-- `Editor/ShopSceneBuilder.cs`, `Editor/ShopLayoutJson.cs`, `Editor/PlayerRigBuilder.cs` (M1의 `GreyboxSceneBuilder`에서 플레이어를 만드는 부분을 빼낸다)
-- `Scripts/World/FurnitureId.cs`, `Scripts/World/ShopLayout.cs`
+- `Editor/ShopSceneBuilder.cs`, `Editor/ShopLayoutJson.cs`, `Editor/ShopBlueprint.cs` (좌표 계산), `Editor/PlayerRigBuilder.cs`와 `Editor/SceneBuildUtility.cs` (M1의 `GreyboxSceneBuilder`에서 플레이어와 공용 도구를 빼낸다)
+- `Scripts/World/FurnitureId.cs`, `Scripts/World/ShopLayout.cs`, `Scripts/World/PhysicsLayers.cs`
+- `Tests/EditMode/World/ShopBlueprintTests.cs`
 - 원본 데이터: `Data/shop_layout.json` (이미 있다. 평면도 SVG도 이 파일에서 만든다)
 - 생성물: `Scenes/Shop.unity`
 
 **공개 API**
 
 ```csharp
-namespace BakeryShop.Editor
+namespace BakeryShop.EditorTools
 {
     public static class ShopSceneBuilder
     {
         [MenuItem("BakeryShop/매장 씬 만들기")]
         public static void Build();
+
+        /// <summary>확인 창 없이 만든다 (자동화용). 성공하면 null, 실패하면 이유.</summary>
+        public static string BuildWithoutPrompts();
+    }
+
+    /// <summary>shop_layout.json에서 "무엇을 어디에 놓을지"를 계산한 결과. 씬 기능을 쓰지 않는 순수한 계산이라 테스트한다.</summary>
+    public sealed class ShopBlueprint
+    {
+        public static ShopBlueprint Create(ShopLayoutJson layout);
+        // Environment(바닥·인도·벽), Boundaries(보이지 않는 벽), Furniture, NoWalkZones, Shelves, 지점들
     }
 }
 
@@ -646,12 +661,25 @@ namespace BakeryShop.World
 **규칙**
 
 - 씬의 구성은 [11 문서의 씬 구성](../design/11-shop-layout.md#씬-구성)을 따른다. 이 작업에서는 `[Bootstrap]`, `[Environment]`, `[Furniture]`, `[Points]`, `[Player]`만 만든다. 가구는 색이 다른 상자이고 `FurnitureId`만 붙인다. 기능 컴포넌트(`OvenView` 등)는 해당 작업에서 빌더에 추가한다.
-- 벽은 문 자리(x −3.0 ~ −1.4)를 비우고 만든다. 인도는 실외 바닥이다.
+- 좌표 계산(`ShopBlueprint`)과 오브젝트 만들기(`ShopSceneBuilder`)를 나눈다. 계산 쪽은 씬 없이 테스트한다: 문이 뚫려 있는지, 가구가 겹치지 않는지, 손님이 서는 자리가 가구나 직원 구역 안에 있지 않은지.
+- 벽은 문 자리(x −3.0 ~ −1.4)를 비우고 만든다. 문 위(높이 2.2 이상)는 벽으로 막는다. 벽은 실내 범위의 바깥쪽에 붙여서 실내가 정확히 `room`의 크기가 되게 한다.
+- 인도는 실외 바닥이다. 실내 바닥과 인도는 문턱(z = −6)에서 만나고 겹치지 않는다 (같은 높이의 두 면이 겹치면 깜빡인다).
+- 인도의 둘레에 보이지 않는 벽을 세운다. 플레이어가 인도 밖으로 걸어 나가 떨어지지 않게 한다.
+- 진열대는 상자 두 개로 만든다: 빵을 놓는 몸통(높이 0.9)과 손님 반대쪽의 뒤판(높이 1.2까지). 칸의 위치는 몸통의 윗면이다.
+- 배송 지점에 테스트용 박스 두 개를 놓는다 (박스를 들고 창고까지 가 보는 용도). 발주와 배송이 생기는 M3-03에서 뺀다.
+- HUD는 M2-09에서 만든다. 그때까지는 M1의 조준점과 안내(`GreyboxSceneBuilder.BuildHud`)를 쓴다.
 - 잠긴 가구(`unlockId`가 있는 가구)는 반투명 재질로 만든다. 잠금 동작은 M5-01에서 붙인다.
-- 레이어 `Player`, `Customer`, `Item`이 없으면 추가하고, `Player` × `Customer` 충돌을 끈다.
+- 레이어 `Player`, `Customer`, `Item`이 없으면 추가하고, `Player` × `Customer` 충돌을 끈다. 같은 규칙을 게임이 시작할 때도 한 번 적용한다 (`PhysicsLayers.ApplyCollisionRules`, M2-09의 부트스트랩이 부른다).
 - `NavMeshSurface`를 `[Environment]`에 붙이고, 주방과 계산 구역에는 "걸을 수 없음" `NavMeshModifierVolume`을 놓는다. NavMesh는 에셋으로 굽지 않고 씬이 시작될 때 한 번 만든다 (M4-04). 씬을 다시 만들어도 구운 데이터가 어긋나지 않는다.
 - 빌더를 다시 실행하면 씬을 처음부터 다시 만든다. 그레이박스 단계에서는 씬을 손으로 고치지 않고 빌더를 고친다.
 - 색: 진열대 주황, 오븐 붉은색, 창고 파랑, 계산대·작업대 회색, 바닥 밝은 베이지, 인도 밝은 회색. 평면도의 색과 맞춘다.
+
+**테스트**
+
+- 실제 `shop_layout.json`으로 만든 `ShopBlueprint`: 문이 뚫려 있고 나머지 남쪽 벽은 막혀 있다, 바닥과 인도가 겹치지 않는다, 가구가 실내에 있고 서로 겹치지 않는다, 잠긴 가구가 진열대 3·4와 오븐 2다, 직원 통로가 플레이어보다 넓다
+- 진열대: 칸이 3개이고 몸통의 윗면에 있다, 손님이 서는 자리가 바라보는 쪽이고 뒤판이 반대쪽이다
+- 지점: 플레이어 시작과 손님의 지점이 가구에서 떨어져 있다, 손님의 지점이 직원 구역 밖이다, 줄이 북쪽으로 뻗는다, 실외 지점이 인도 위다
+- 잘못된 배치(모르는 종류, 빠진 지점, 칸 정보가 없는 진열대, 중복 ID, 벽을 벗어난 문)는 `FormatException`
 
 **Unity에서 확인**
 
@@ -659,6 +687,10 @@ namespace BakeryShop.World
 - [ ] 플레이하면 플레이어가 (0, −4)에서 북쪽을 보고 시작한다.
 - [ ] 계산 자리 → 동쪽 통로 → 주방 → 오븐 1 앞까지 걸어서 갈 수 있다. 걸리는 시간을 잰다 (시뮬레이터의 `walk_to_oven` 가정값은 4초).
 - [ ] 문으로 나가 인도의 배송 지점까지 갈 수 있다. 배송 지점 → 창고 선반 앞까지 걸리는 시간을 잰다.
+- [ ] 배송 지점의 박스를 들고 창고 선반 앞까지 옮길 수 있다. 문과 통로에서 박스가 걸리지 않는다.
+- [ ] 인도의 끝까지 걸어가도 밖으로 떨어지지 않는다.
+- [ ] 잠긴 가구(진열대 3·4, 오븐 2)가 반투명으로 보인다.
+- [ ] M1의 그레이박스 씬 메뉴(**그레이박스 씬 만들기 (1주차)**)도 그대로 동작한다 (플레이어를 만드는 코드를 옮겼다).
 - [ ] 통로의 폭이 답답하지 않다 (계산 구역 입구, 주방 입구, 진열대 3·4 사이).
 - [ ] 가구에 올라타거나 틈에 끼이는 곳이 없다.
 - [ ] `NavMeshSurface`의 Bake를 눌러 보면(저장하지 않는다) 매장 구역과 인도만 파랗게 칠해지고, 문을 통해 이어져 있다.
@@ -672,11 +704,12 @@ namespace BakeryShop.World
 
 **파일**
 
-- `Scripts/Core/GameComposer.cs`, `GameLoop.cs`, 수정: `GameBootstrap.cs`, `GameContext.cs`
+- `Scripts/Core/GameComposer.cs`, `GameLoop.cs`, `DevCheats.cs`, 수정: `GameBootstrap.cs`, `GameContext.cs`
 - `Scripts/World/OpenSign.cs`
-- `Scripts/UI/PanelHost.cs`, `HudView.cs`, `UiFont.cs`, `EventLogOverlay.cs`, 수정: `InteractionPromptHUD.cs` (TextMeshPro로 교체)
-- `Editor/ShopUiBuilder.cs`, 수정: `ShopSceneBuilder.cs` (팻말, UI, 부트스트랩 연결)
-- `Tests/EditMode/Core/GameComposerTests.cs`
+- `Scripts/UI/IPanel.cs`, `PanelHost.cs`, `HudView.cs`, `HudFormat.cs` (HUD의 글자를 만드는 순수 계산), `UiFont.cs`, `EventLogOverlay.cs`, 수정: `InteractionPromptHUD.cs` (TextMeshPro로 교체)
+- `Editor/ShopUiBuilder.cs`, 수정: `ShopSceneBuilder.cs` (팻말, UI, 부트스트랩 연결), `GreyboxSceneBuilder.cs` (TMP 안내, 콘텐츠 연결)
+- 수정: 런타임·에디터·테스트 asmdef에 `Unity.TextMeshPro` 참조
+- `Tests/EditMode/Core/GameComposerTests.cs`, `Tests/EditMode/UI/HudFormatTests.cs`
 
 **공개 API**
 
@@ -707,7 +740,8 @@ namespace BakeryShop.Core
     public static class GameComposer
     {
         public static GameContext Compose(ContentDatabase content, uint customerSeed, uint lootSeed);
-        public static void StartNewGame(GameContext context);    // 시작 자금 등 초기 상태를 채운다
+        public static void StartNewGame(GameContext context);    // 시작 자금 등 초기 상태를 채운다. 이벤트를 발행하지 않는다
+        public static uint LootSeedFor(uint seed);               // 시드 하나에서 박스용 시드를 만든다 (항상 다른 값)
     }
 
     /// <summary>한 프레임의 갱신 순서. 01 문서의 "갱신 순서"와 같다.</summary>
@@ -740,21 +774,33 @@ namespace BakeryShop.UI
 **규칙**
 
 - `GameBootstrap.Awake`: `Compose` → `StartNewGame` → 씬 참조 채우기 → `IContextConsumer.Init` → `Day.Begin()`. `Update`는 `GameLoop.Tick(context, Time.deltaTime)` 한 줄이다.
+- `IContextConsumer.Init`은 부트스트랩의 `Awake`에서 불린다. 그 시점에 자신의 `Awake`와 `OnEnable`은 아직 실행되지 않았을 수 있으므로, 구독과 첫 화면 갱신을 `Init` 안에서 한다. 해제는 `OnDestroy`에서 한다.
+- 난수 시드는 실행할 때마다 다르고 콘솔에 찍힌다. `GameBootstrap`의 `Fixed Seed`에 그 값을 넣으면 같은 수열로 다시 실행한다 (버그 재현용).
+- 에디터와 개발 빌드에서는 시작할 때 `ContentValidator`를 한 번 돌려 문제를 콘솔에 오류로 남긴다.
+- `GameBootstrap`의 `_panels`와 `_layout`은 비워 둘 수 있다 (1주차 그레이박스 씬에는 없다). `_content`와 `_playerInput`은 반드시 있어야 한다.
 - `GameLoop.Tick`의 M2 시점 순서: `Time.Advance` → `Day.Tick`. 이후 작업이 [01 문서](../design/01-runtime-structure.md#갱신-순서-tick)의 순서대로 줄을 추가한다.
 - `OpenSign`: 준비 단계에 빈손으로 바라보면 `[E] 영업 시작`. E를 누르면 `Day.TryOpenShop()`. 영업 중에는 팻말이 "영업 중" 면으로 돌아가 있고 안내가 없다. 다음 날 준비 단계에 "준비 중" 면으로 돌아온다.
 - `PanelHost.Open`: 입력 모드를 UI로, 커서를 푼다. `Close`: 입력 모드를 게임으로, 커서를 잠근다. 입력 모드를 바꾸는 코드는 여기 한 곳뿐이다.
 - Esc: `PanelHost.HandleEscape()`가 `false`일 때만 M1의 임시 동작(커서 풀기)을 한다. 일시정지 메뉴는 M6-03에서 만든다.
 - `HudView`의 M2 시점 항목: 날짜와 단계, 시계, 돈, 평판 별, 레벨과 경험치 막대, 조준점과 안내. 갱신 방식은 [10 문서의 HUD 표](../design/10-ui.md#hud)를 따른다. 시계는 `HH:MM`으로 10분 단위까지만 바뀌게 표시한다 (분 단위로 바뀌면 너무 빨리 깜빡인다).
-- `UiFont`: UI가 쓰는 TMP 글꼴 에셋 하나를 들고 있는 ScriptableObject. `ShopUiBuilder`가 만드는 모든 텍스트가 이 글꼴을 쓴다.
+- `UiFont`: UI가 쓰는 TMP 글꼴 에셋 하나를 들고 있는 ScriptableObject (`Art/Fonts/UiFont.asset`). `ShopUiBuilder`가 만드는 모든 텍스트가 이 글꼴을 쓴다.
+- `ShopUiBuilder.EnsureUiFont`: `Art/Fonts`에서 TMP 글꼴 에셋을 찾아 연결한다. 없고 글꼴 파일(.otf/.ttf)만 있으면 그 파일로 동적 TMP 글꼴 에셋을 만든다. 글꼴이 하나도 없으면 경고를 남기고 TMP의 기본 글꼴을 쓴다 (한글이 □로 보인다).
+- TMP의 기본 리소스가 없으면 씬 빌더가 씬을 만들기 전에 멈추고 무엇을 해야 하는지 알려 준다.
+- 평판은 별 글자 대신 반 칸짜리 막대 10개로 그린다 (별 하나 = 두 칸). 글꼴에 반쪽 별 글자가 없어도 반 개 단위를 보여줄 수 있다.
+- HUD의 글자를 만드는 계산(`HudFormat`: 날짜 줄, 시계, 경험치 줄과 막대, 켜진 칸 수)은 `HudView`에서 떼어 테스트한다.
 - `EventLogOverlay`: 개발 빌드와 에디터에서 F3으로 켜고 끈다. `EventBus.Trace`를 받아 최근 이벤트 20개를 `시각  이벤트 이름  내용`으로 보여준다. 트러블슈팅에서 "무슨 순서로 무엇이 일어났는지"를 보는 도구다.
 - 개발용 단축키 (에디터와 개발 빌드에서만): F5 = 영업 시계를 폐점 1분 전으로, F6 = 돈 +100,000, F7 = 경험치 +50. `DevCheats` 컴포넌트 하나에 모은다.
+- F5는 시계 값만 고쳐 쓰지 않고 `GameLoop.Tick`을 빠르게 반복한다. 건너뛴 시간 동안의 일(이후의 오븐, 손님)도 실제로 흘러간 것처럼 처리된다.
+- `EventLogOverlay`는 화면이 꺼져 있어도 기록한다. 문제가 생긴 뒤에 F3을 눌러도 직전의 흐름이 보인다.
+- 1주차 그레이박스 씬(`Greybox_Week1`)은 이 작업 뒤에 메뉴로 다시 만들어야 한다 (부트스트랩이 콘텐츠를 요구하고, 안내 글자가 TMP로 바뀐다). 매장 씬이 그 역할을 대신하므로 다시 만들지 않고 두어도 된다.
 
 **사용자가 준비할 것** (PR을 받기 전에)
 
 1. **Window → TextMeshPro → Import TMP Essential Resources**를 실행한다.
 2. [Pretendard](https://github.com/orioncactus/pretendard) 글꼴(OFL 라이선스)의 `Pretendard-Regular.otf`, `Pretendard-Bold.otf`를 받아 `Assets/_Project/Art/Fonts/`에 넣는다.
-3. 글꼴 파일을 우클릭 → **Create → TextMeshPro → Font Asset**. 만들어진 에셋의 Atlas Population Mode를 **Dynamic**으로 둔다 (한글을 쓰는 순간 필요한 글자만 채운다).
-4. `Assets/_Project/Art/Fonts/OFL.txt`로 라이선스 파일을 함께 넣는다.
+3. `Assets/_Project/Art/Fonts/OFL.txt`로 라이선스 파일을 함께 넣는다.
+
+TMP 글꼴 에셋은 씬 빌더가 글꼴 파일에서 만든다 (동적 아틀라스: 한글을 쓰는 순간 필요한 글자만 채운다). 자동으로 만들어지지 않으면 글꼴 파일을 우클릭 → **Create → TextMeshPro → Font Asset**으로 직접 만들고 빌더를 다시 실행한다.
 
 **테스트**
 
@@ -762,6 +808,10 @@ namespace BakeryShop.UI
 - `StartNewGame` 뒤 잔액이 시작 자금, 평판이 500, 레벨이 1이다
 - `GameLoop.Tick`을 영업 시간만큼 반복하면 단계가 `Closing`이 된다 (씬 없이 하루의 시간 흐름이 돈다)
 - 같은 시드로 두 번 만들면 두 난수의 첫 값이 같고, 손님용과 박스용의 값은 서로 다르다
+- 손님용 난수를 여러 번 써도 박스용 난수의 수열이 바뀌지 않는다
+- `StartNewGame`은 이벤트를 하나도 발행하지 않는다
+- 준비 단계에서는 `GameLoop.Tick`을 돌려도 영업 시계가 09:00이다. 일시정지 중에는 아무것도 움직이지 않는다
+- `HudFormat`: 날짜 줄, 시계의 10분 내림(549.9 → 09:00, 550 → 09:10), 경험치 줄과 막대(최고 레벨이면 MAX, 1), 켜진 칸 수
 
 **Unity에서 확인**
 
@@ -786,4 +836,4 @@ namespace BakeryShop.UI
 3. 팻말을 돌려 영업을 시작한다. 시계가 흐른다.
 4. 18:00이 되면 마감으로 바뀐다.
 
-EditMode 테스트는 M1의 46개에 약 100개가 더해진다. 태그: `v0.2-core`
+EditMode 테스트는 M1의 53개에 383개가 더해져 436개다. 태그: `v0.2-core`
