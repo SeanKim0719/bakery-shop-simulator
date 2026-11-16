@@ -10,8 +10,8 @@ MVP는 **레벨 1~5, 빵 10종(일반 6, 비밀 4), 오븐 2대, 진열대 4개,
 
 | 마일스톤 | 끝났을 때 되는 것 | 기간 | 태그 | 이슈 | 상태 |
 | --- | --- | --- | --- | --- | --- |
-| [M1. 조작과 상호작용](plan/M1-player-interaction.md) | 박스를 들고, 쌓고, 내려놓는다 | 0.5주 | `v0.1-movement` | [진행률](https://github.com/SeanKim0719/bakery-shop-simulator/milestone/1) | 코드 병합 완료 ([PR #1](https://github.com/SeanKim0719/bakery-shop-simulator/pull/1)), Unity 확인 중 |
-| [M2. 코어와 매장 그레이박스](plan/M2-core-and-greybox.md) | 실제 배치의 매장에서 개점하면 시계가 흐르고 마감된다 | 2주 | `v0.2-core` | [진행률](https://github.com/SeanKim0719/bakery-shop-simulator/milestone/2) | 시작 전 |
+| [M1. 조작과 상호작용](plan/M1-player-interaction.md) | 박스를 들고, 쌓고, 내려놓는다 | 0.5주 | `v0.1-movement` | [진행률](https://github.com/SeanKim0719/bakery-shop-simulator/milestone/1) | 코드와 Unity 확인 완료. 남은 것은 트러블슈팅 증거(GIF)와 태그 |
+| [M2. 코어와 매장 그레이박스](plan/M2-core-and-greybox.md) | 실제 배치의 매장에서 개점하면 시계가 흐르고 마감된다 | 2주 | `v0.2-core` | [진행률](https://github.com/SeanKim0719/bakery-shop-simulator/milestone/2) | 진행 중 (M2-01~03 PR 검토 대기) |
 | [M3. 생산 루프](plan/M3-production-loop.md) | 발주 → 배송 → 굽기 → 진열 → 가격 | 2.5주 | `v0.3-production` | [진행률](https://github.com/SeanKim0719/bakery-shop-simulator/milestone/3) | 시작 전 |
 | [M4. 영업 루프](plan/M4-shop-loop.md) | 손님, 계산, 정산. 하루가 처음부터 끝까지 돈다 | 3주 | `v0.4-day-loop` | [진행률](https://github.com/SeanKim0719/bakery-shop-simulator/milestone/4) | 시작 전 |
 | [M5. 성장과 수집](plan/M5-growth-and-collection.md) | 해금, 미스터리 박스, 실험, 도감, 목표 리스트 | 2주 | `v0.5-growth` | [진행률](https://github.com/SeanKim0719/bakery-shop-simulator/milestone/5) | 시작 전 |
@@ -33,15 +33,15 @@ MVP는 **레벨 1~5, 빵 10종(일반 6, 비밀 4), 오븐 2대, 진열대 4개,
 - [x] 들기, 내려놓기, 쌓기 (`Hands`, `IHoldable`)
 - [x] 플레이 테스트에서 나온 버그 2건 수정 (벽 파고듦, 몸에 겹쳐 내려놓기)
 - [x] PR #1을 `main`에 병합 (2026-11-12)
-- [ ] M1-01 병합한 조작 코드 확인 ([#4](https://github.com/SeanKim0719/bakery-shop-simulator/issues/4))
-- [ ] M1-02 트러블슈팅 기록 2건 ([#5](https://github.com/SeanKim0719/bakery-shop-simulator/issues/5). 초안: [#2](https://github.com/SeanKim0719/bakery-shop-simulator/issues/2), [#3](https://github.com/SeanKim0719/bakery-shop-simulator/issues/3))
+- [x] M1-01 병합한 조작 코드 확인 ([#4](https://github.com/SeanKim0719/bakery-shop-simulator/issues/4). 재수정 [PR #49](https://github.com/SeanKim0719/bakery-shop-simulator/pull/49), Unity에서 테스트 53개 통과)
+- [ ] M1-02 트러블슈팅 기록 2건 ([#5](https://github.com/SeanKim0719/bakery-shop-simulator/issues/5). 글은 [TS-002](troubleshooting/TS-002-drop-physics-pose-sync.md)까지 정리됨. 남은 것: 수정 전후 GIF, 재현 횟수, 배운 점)
 - [ ] M1-03 태그 `v0.1-movement` ([#6](https://github.com/SeanKim0719/bakery-shop-simulator/issues/6))
 
 ## M2. 코어와 매장 그레이박스
 
-- [ ] M2-01 이벤트 버스 ([#7](https://github.com/SeanKim0719/bakery-shop-simulator/issues/7))
-- [ ] M2-02 난수와 꺾은선 ([#8](https://github.com/SeanKim0719/bakery-shop-simulator/issues/8))
-- [ ] M2-03 시간 ([#9](https://github.com/SeanKim0719/bakery-shop-simulator/issues/9))
+- [ ] M2-01 이벤트 버스 ([#7](https://github.com/SeanKim0719/bakery-shop-simulator/issues/7), [PR #50](https://github.com/SeanKim0719/bakery-shop-simulator/pull/50) 검토 대기)
+- [ ] M2-02 난수와 꺾은선 ([#8](https://github.com/SeanKim0719/bakery-shop-simulator/issues/8), [PR #51](https://github.com/SeanKim0719/bakery-shop-simulator/pull/51) 검토 대기)
+- [ ] M2-03 시간 ([#9](https://github.com/SeanKim0719/bakery-shop-simulator/issues/9), [PR #52](https://github.com/SeanKim0719/bakery-shop-simulator/pull/52) 검토 대기)
 - [ ] M2-04 하루 단계 ([#10](https://github.com/SeanKim0719/bakery-shop-simulator/issues/10))
 - [ ] M2-05 콘텐츠 정의와 데이터베이스 ([#11](https://github.com/SeanKim0719/bakery-shop-simulator/issues/11))
 - [ ] M2-06 `content.json` 임포터 ([#12](https://github.com/SeanKim0719/bakery-shop-simulator/issues/12))
