@@ -444,7 +444,7 @@ namespace BakeryShop.Data
 
 **파일**
 
-- `Editor/ContentJsonReader.cs`, `Editor/ContentImporter.cs`
+- `Editor/ContentJsonReader.cs`, `Editor/ContentImporter.cs`, `Editor/ContentInspectors.cs` (읽기 전용 인스펙터)
 - `Packages/manifest.json`에 `com.unity.nuget.newtonsoft-json` 추가 (이미 다른 패키지의 의존으로 설치되어 있다. 직접 의존으로 올린다)
 - `Tests/EditMode/BakeryShop.Tests.EditMode.asmdef`에 `BakeryShop.Editor` 참조 추가
 - `Tests/EditMode/Data/ContentJsonReaderTests.cs`, `RealContentTests.cs`
@@ -453,7 +453,7 @@ namespace BakeryShop.Data
 **공개 API**
 
 ```csharp
-namespace BakeryShop.Editor
+namespace BakeryShop.EditorTools   // 에디터 어셈블리의 기존 네임스페이스
 {
     public static class ContentJsonReader
     {
@@ -471,6 +471,9 @@ namespace BakeryShop.Editor
         /// <summary>에셋 파일을 만들지 않고 메모리에만 데이터베이스를 만든다 (테스트용).</summary>
         public static ContentDatabase BuildInMemory(string jsonText);
 
+        /// <summary>BuildInMemory로 만든 것을 지운다. 에셋 파일에서 불러온 것은 건드리지 않는다.</summary>
+        public static void DestroyInMemory(ContentDatabase database);
+
         /// <summary>두 데이터베이스의 수치가 다른 곳을 문장으로 돌려준다.</summary>
         public static List<string> Diff(ContentDatabase expected, ContentDatabase actual);
     }
@@ -481,7 +484,12 @@ namespace BakeryShop.Editor
 
 - JSON 읽기는 Newtonsoft를 쓴다. `[[x, y], …]` 모양의 점 목록과 `{"Undercooked": 0.7, …}` 모양의 사전을 `JsonUtility`가 읽지 못하기 때문이다. 에디터 코드에서만 쓰고 런타임 어셈블리는 참조하지 않는다.
 - `Import`의 동작: ① JSON 읽기 ② 정의마다 `Generated/<종류>/<id>.asset`을 찾고, 없으면 만든다 ③ `Apply`로 수치를 덮어쓴다 (외형 필드는 그대로) ④ JSON에 없는 ID의 에셋은 지우지 않고 경고만 남긴다 ⑤ `ContentDatabase.asset`의 목록을 JSON 순서대로 다시 채운다 ⑥ `ContentValidator`를 실행해 문제를 콘솔에 오류로 출력한다 ⑦ 만든 수, 바꾼 수를 로그로 남긴다.
-- 에셋 파일 이름은 ID 그대로 쓴다 (`bread.croissant.asset`).
+- 에셋 파일 이름은 ID 그대로 쓴다 (`bread.croissant.asset`). 그래서 ID는 영어 소문자·숫자·밑줄·점만 허용하고, 어긋나면 에셋을 건드리기 전에 중단한다.
+- 에셋의 위치: `Generated/GameConfig.asset`, `Generated/ContentDatabase.asset`, `Generated/Ingredients/`, `Recipes/`, `Products/`, `LootTables/`, `CustomerProfiles/`, `Unlocks/`.
+- `content.json`에 모르는 키가 있으면 오류다 (`MissingMemberHandling.Error`). `marketPirce` 같은 오타가 조용히 무시되어 값이 0이 되는 일을 막는다.
+- 읽기와 enum 변환이 실패하면 에셋을 하나도 건드리지 않고 중단한다 (먼저 메모리에서 한 번 만들어 본다).
+- 수치가 그대로인 에셋은 저장 대상으로 표시하지 않는다. 가져오기를 다시 실행해도 Git에 변경이 생기지 않는다.
+- `Diff`는 `SerializedObject`로 직렬화된 수치 필드를 모두 훑어 비교한다. 필드를 코드에 하나씩 적지 않으므로 정의에 필드를 추가해도 비교가 따라온다. 오브젝트 참조(아이콘, 프리팹)는 비교하지 않는다.
 - 생성된 에셋의 인스펙터에서 수치 필드는 읽기 전용으로 보이게 한다 (커스텀 에디터에서 `GUI.enabled = false`). 외형 필드만 고칠 수 있다.
 
 **테스트**
@@ -489,6 +497,8 @@ namespace BakeryShop.Editor
 - `ContentJsonReader`: 점 목록이 `CurvePoint[]`가 된다
 - `ContentJsonReader`: 품질 배율 사전이 읽힌다
 - `ContentJsonReader`: 선택 필드(`keyIngredient`, `hint`, `lootTable`)가 없어도 읽힌다
+- `ContentJsonReader`: 모르는 키, 모양이 틀린 점(`[x, y, z]`), 깨진 JSON, 빈 글은 `FormatException`이다
+- `RealContent`: 같은 JSON으로 두 번 만든 데이터베이스의 `Diff`가 비어 있다. 시세 하나를 바꾸면 그 한 줄만 나온다. 해금 하나를 빼면 그 ID가 나온다
 - `RealContent`: 실제 `content.json`으로 만든 데이터베이스가 `ContentValidator`를 통과한다
 - `RealContent`: `Data/Generated/ContentDatabase.asset`이 실제 `content.json`과 수치가 같다 (`Diff`가 비어 있다). JSON을 고치고 가져오기를 잊으면 이 테스트가 실패한다
 - `RealContent`: 모든 레시피의 한 판 매출이 재료비보다 크다 (핵심 재료 제외)
