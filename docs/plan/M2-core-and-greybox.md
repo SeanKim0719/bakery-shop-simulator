@@ -545,7 +545,7 @@ namespace BakeryShop.Economy
 
     public sealed class ReputationService
     {
-        public ReputationService(EventBus bus, ReputationConfig config);
+        public ReputationService(EventBus bus, ReputationConfig reputation, CustomerConfig customers);   // 손님 수 배율의 범위는 customers에 있다
         public int Value { get; }                 // 0 ~ 1000
         public float Stars { get; }               // 0 ~ 5, 0.5 단위
         public float SpawnMultiplier { get; }     // 0.7 ~ 1.3
@@ -580,11 +580,15 @@ namespace BakeryShop.Economy
 
 **규칙**
 
-- `Wallet.Add`, `TrySpend`, `ForceSpend`의 금액이 음수면 예외. 0이면 아무 일도 하지 않고 이벤트도 없다.
-- `ReputationService.Add`는 0~1000으로 자른다. 실제로 값이 바뀌었을 때만 `ReputationChanged`를 발행한다.
-- `Stars` = `Value ÷ 200`을 0.5 단위로 내림. `SpawnMultiplier` = `0.7 + 0.6 × Value ÷ 1000` (설정값 `reputationSpawnMin/Max`에서 읽는다).
+- `Wallet.Add`, `TrySpend`, `ForceSpend`, `CanAfford`의 금액이 음수면 예외. 0이면 아무 일도 하지 않고 이벤트도 없다 (`TrySpend(0)`은 `true`).
+- 잔액 계산은 `checked`로 한다. int의 범위를 넘으면 조용히 음수로 돌아가지 않고 `OverflowException`이 난다.
+- `ReputationService.Add`는 설정의 `min`~`max`(기본 0~1000)로 자른다. 실제로 값이 바뀌었을 때만 `ReputationChanged`를 발행하고, `Delta`는 실제로 바뀐 양이다.
+- `ReputationService.Restore`는 범위를 벗어난 값을 범위 안으로 자른다.
+- `Stars` = `Value ÷ 200`을 0.5 단위로 내림 (정수 계산: 반 개의 수 = `(Value − min) × 10 ÷ (max − min)`). `SpawnMultiplier` = `0.7 + 0.6 × Value ÷ 1000` (설정값 `reputationSpawnMin/Max`에서 읽는다).
 - `LevelFor`: 경험치가 `thresholds[i]` 이상인 가장 큰 `i`에 1을 더한 값. 기본 설정 `[0, 40, 130, 280, 540]`에서 39 → 1, 40 → 2, 540 → 5, 9999 → 5.
-- `AddXp`는 `XpGained`를 발행하고, 레벨이 오르면 `LevelUp`을 발행한다. 한 번에 두 레벨이 오르면 `LevelUp`을 레벨마다 순서대로 발행한다.
+- `AddXp`는 `XpGained`를 발행하고, 레벨이 오르면 `LevelUp`을 발행한다. 한 번에 두 레벨이 오르면 `LevelUp`을 레벨마다 순서대로 발행한다. 음수는 예외, 0은 아무 일도 하지 않는다. 최고 레벨에서도 경험치는 계속 쌓인다.
+- 레벨은 따로 저장하지 않고 경험치에서 계산한다 (`Level => LevelMath.LevelFor(Xp, …)`).
+- `MoneyFormat`은 `InvariantCulture`로 쓴다. 컴퓨터의 지역 설정이 달라도 천 단위는 쉼표다. `Signed(0)`은 `"0"`.
 - `Restore~`는 이벤트를 발행하지 않는다.
 - `MoneyChanged.Reason`에 "계산 실수"는 없다. 덜 받은 금액은 판매 이벤트의 합계와 받은 금액의 차이로 리포트가 계산한다.
 
@@ -594,7 +598,7 @@ namespace BakeryShop.Economy
 - `ReputationService`: 시작값 500, 위아래로 자르기, 변화가 없으면 이벤트 없음, 별(0 → 0, 500 → 2.5, 599 → 2.5, 600 → 3, 1000 → 5), 배율(0 → 0.7, 500 → 1.0, 1000 → 1.3)
 - `LevelMath`: 경계값 (0, 39, 40, 129, 130, 540, 9999)
 - `ProgressionService`: 경험치 누적, 레벨 업 이벤트, 한 번에 두 레벨, 최고 레벨에서 `XpForNextLevel`이 -1, `Restore`는 이벤트 없음
-- `MoneyFormat`: 0, 999, 1000, 152300, 음수
+- `MoneyFormat`: 0, 999, 1000, 152300, 음수, 지역 설정을 독일어로 바꿔도 같은 결과
 
 **의존**: M2-01, M2-05 (설정 타입)
 
