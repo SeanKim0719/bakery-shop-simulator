@@ -1,5 +1,4 @@
 using System.IO;
-using System.Linq;
 using BakeryShop.Core;
 using BakeryShop.Interaction;
 using BakeryShop.Player;
@@ -22,7 +21,6 @@ namespace BakeryShop.EditorTools
     {
         private const string ScenePath = "Assets/_Project/Scenes/Greybox_Week1.unity";
         private const string InputActionsPath = "Assets/_Project/Input/BakeryControls.inputactions";
-        private const string MaterialFolder = "Assets/_Project/Art/Materials";
 
         private static readonly Vector3 PlayerSpawn = new Vector3(0f, 0f, -3f);
 
@@ -52,25 +50,13 @@ namespace BakeryShop.EditorTools
             CreateLight();
             BuildEnvironment();
             BuildBoxes();
-            PlayerRig player = BuildPlayer(actions);
+            PlayerRig player = PlayerRigBuilder.Build("Player", actions, PlayerSpawn, 0f);
             BuildHud(player.Interactor);
             BuildBootstrap(player.Input);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
-            AddToBuildSettings(ScenePath);
+            SceneBuildUtility.AddToBuildSettings(ScenePath);
             Debug.Log($"[GreyboxSceneBuilder] {ScenePath} 생성 완료. 플레이해서 조작감을 확인하세요.");
-        }
-
-        private readonly struct PlayerRig
-        {
-            public readonly PlayerInputReader Input;
-            public readonly Interactor Interactor;
-
-            public PlayerRig(PlayerInputReader input, Interactor interactor)
-            {
-                Input = input;
-                Interactor = interactor;
-            }
         }
 
         private static void CreateLight()
@@ -83,28 +69,28 @@ namespace BakeryShop.EditorTools
 
         private static void BuildEnvironment()
         {
-            Material floor = GetOrCreateMaterial("Greybox_Floor", new Color(0.55f, 0.55f, 0.55f));
-            Material wall = GetOrCreateMaterial("Greybox_Wall", new Color(0.8f, 0.8f, 0.78f));
-            Material furniture = GetOrCreateMaterial("Greybox_Furniture", new Color(0.45f, 0.6f, 0.75f));
+            Material floor = SceneBuildUtility.GetOrCreateMaterial("Greybox_Floor", new Color(0.55f, 0.55f, 0.55f));
+            Material wall = SceneBuildUtility.GetOrCreateMaterial("Greybox_Wall", new Color(0.8f, 0.8f, 0.78f));
+            Material furniture = SceneBuildUtility.GetOrCreateMaterial("Greybox_Furniture", new Color(0.45f, 0.6f, 0.75f));
 
             Transform env = new GameObject("[Environment]").transform;
-            CreateBlock("Floor", env, new Vector3(0f, -0.05f, 0f), new Vector3(12f, 0.1f, 12f), floor);
-            CreateBlock("Wall_North", env, new Vector3(0f, 1.5f, 6f), new Vector3(12f, 3f, 0.2f), wall);
-            CreateBlock("Wall_South", env, new Vector3(0f, 1.5f, -6f), new Vector3(12f, 3f, 0.2f), wall);
-            CreateBlock("Wall_East", env, new Vector3(6f, 1.5f, 0f), new Vector3(0.2f, 3f, 12f), wall);
-            CreateBlock("Wall_West", env, new Vector3(-6f, 1.5f, 0f), new Vector3(0.2f, 3f, 12f), wall);
+            SceneBuildUtility.CreateBlock("Floor", env, new Vector3(0f, -0.05f, 0f), new Vector3(12f, 0.1f, 12f), floor);
+            SceneBuildUtility.CreateBlock("Wall_North", env, new Vector3(0f, 1.5f, 6f), new Vector3(12f, 3f, 0.2f), wall);
+            SceneBuildUtility.CreateBlock("Wall_South", env, new Vector3(0f, 1.5f, -6f), new Vector3(12f, 3f, 0.2f), wall);
+            SceneBuildUtility.CreateBlock("Wall_East", env, new Vector3(6f, 1.5f, 0f), new Vector3(0.2f, 3f, 12f), wall);
+            SceneBuildUtility.CreateBlock("Wall_West", env, new Vector3(-6f, 1.5f, 0f), new Vector3(0.2f, 3f, 12f), wall);
 
             // 확인용 가구: 윗면에 박스 올리기, 벽·선반에 대고 내려놓기, 턱 넘기.
             Transform furn = new GameObject("[Furniture]").transform;
-            CreateBlock("Shelf_01", furn, new Vector3(-3f, 0.6f, 5f), new Vector3(2f, 1.2f, 0.6f), furniture);
-            CreateBlock("Shelf_02", furn, new Vector3(3f, 0.6f, 5f), new Vector3(2f, 1.2f, 0.6f), furniture);
-            CreateBlock("Table", furn, new Vector3(3.5f, 0.4f, 0f), new Vector3(1.5f, 0.8f, 0.8f), furniture);
-            CreateBlock("Step_25cm", furn, new Vector3(-3.5f, 0.125f, 0f), new Vector3(2f, 0.25f, 2f), furniture);
+            SceneBuildUtility.CreateBlock("Shelf_01", furn, new Vector3(-3f, 0.6f, 5f), new Vector3(2f, 1.2f, 0.6f), furniture);
+            SceneBuildUtility.CreateBlock("Shelf_02", furn, new Vector3(3f, 0.6f, 5f), new Vector3(2f, 1.2f, 0.6f), furniture);
+            SceneBuildUtility.CreateBlock("Table", furn, new Vector3(3.5f, 0.4f, 0f), new Vector3(1.5f, 0.8f, 0.8f), furniture);
+            SceneBuildUtility.CreateBlock("Step_25cm", furn, new Vector3(-3.5f, 0.125f, 0f), new Vector3(2f, 0.25f, 2f), furniture);
         }
 
         private static void BuildBoxes()
         {
-            Material boxMat = GetOrCreateMaterial("Greybox_Box", new Color(0.82f, 0.62f, 0.38f));
+            Material boxMat = SceneBuildUtility.GetOrCreateMaterial("Greybox_Box", new Color(0.82f, 0.62f, 0.38f));
             Transform items = new GameObject("[Items]").transform;
 
             Vector3[] positions =
@@ -126,7 +112,7 @@ namespace BakeryShop.EditorTools
                 box.GetComponent<MeshRenderer>().sharedMaterial = boxMat;
 
                 var holdable = box.AddComponent<HoldableObject>(); // Rigidbody는 RequireComponent로 함께 붙는다.
-                SetString(holdable, "_displayName", "배송 박스");
+                SceneBuildUtility.SetString(holdable, "_displayName", "배송 박스");
 
                 var body = box.GetComponent<Rigidbody>();
                 body.mass = 2f;
@@ -136,50 +122,8 @@ namespace BakeryShop.EditorTools
             }
         }
 
-        private static PlayerRig BuildPlayer(InputActionAsset actions)
-        {
-            var player = new GameObject("Player");
-            player.transform.position = PlayerSpawn;
-
-            var controller = player.AddComponent<CharacterController>();
-            controller.height = 1.8f;
-            controller.radius = 0.35f;
-            controller.center = new Vector3(0f, 0.9f, 0f);
-            controller.stepOffset = 0.3f;
-
-            var input = player.AddComponent<PlayerInputReader>();
-            var motor = player.AddComponent<PlayerMotor>();
-            var hands = player.AddComponent<Hands>();
-            var interactor = player.AddComponent<Interactor>();
-
-            Transform pivot = new GameObject("CameraPivot").transform;
-            pivot.SetParent(player.transform, false);
-            pivot.localPosition = new Vector3(0f, 1.6f, 0f);
-
-            var cameraObject = new GameObject("Main Camera", typeof(Camera), typeof(AudioListener));
-            cameraObject.tag = "MainCamera";
-            cameraObject.transform.SetParent(pivot, false);
-            var camera = cameraObject.GetComponent<Camera>();
-            camera.nearClipPlane = 0.05f;
-            camera.fieldOfView = 70f;
-
-            Transform holdAnchor = new GameObject("HoldAnchor").transform;
-            holdAnchor.SetParent(cameraObject.transform, false);
-            holdAnchor.localPosition = new Vector3(0f, -0.3f, 0.9f);
-
-            SetReference(input, "_actions", actions);
-            SetReference(motor, "_input", input);
-            SetReference(motor, "_cameraPivot", pivot);
-            SetReference(hands, "_holdAnchor", holdAnchor);
-            SetReference(interactor, "_input", input);
-            SetReference(interactor, "_hands", hands);
-            SetReference(interactor, "_motor", motor);
-            SetReference(interactor, "_viewOrigin", cameraObject.transform);
-
-            return new PlayerRig(input, interactor);
-        }
-
-        private static void BuildHud(Interactor interactor)
+        // 조준점과 "[E] 행동" 안내. 매장 씬도 M2-09에서 HUD가 생기기 전까지 이것을 쓴다.
+        internal static void BuildHud(Interactor interactor)
         {
             var canvasObject = new GameObject("HUD", typeof(Canvas), typeof(CanvasScaler));
             canvasObject.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
@@ -207,85 +151,14 @@ namespace BakeryShop.EditorTools
             label.text = string.Empty;
 
             var hud = canvasObject.AddComponent<InteractionPromptHUD>();
-            SetReference(hud, "_interactor", interactor);
-            SetReference(hud, "_label", label);
+            SceneBuildUtility.SetReference(hud, "_interactor", interactor);
+            SceneBuildUtility.SetReference(hud, "_label", label);
         }
 
         private static void BuildBootstrap(PlayerInputReader input)
         {
             var bootstrap = new GameObject("[Bootstrap]").AddComponent<GameBootstrap>();
-            SetReference(bootstrap, "_playerInput", input);
-        }
-
-        private static GameObject CreateBlock(string name, Transform parent, Vector3 position, Vector3 size, Material material)
-        {
-            GameObject block = GameObject.CreatePrimitive(PrimitiveType.Cube);
-            block.name = name;
-            block.transform.SetParent(parent, false);
-            block.transform.localPosition = position;
-            block.transform.localScale = size;
-            block.GetComponent<MeshRenderer>().sharedMaterial = material;
-            block.isStatic = true;
-            return block;
-        }
-
-        private static Material GetOrCreateMaterial(string name, Color color)
-        {
-            string path = $"{MaterialFolder}/{name}.mat";
-            var material = AssetDatabase.LoadAssetAtPath<Material>(path);
-            if (material != null)
-            {
-                return material;
-            }
-
-            Shader shader = Shader.Find("Universal Render Pipeline/Lit");
-            if (shader == null)
-            {
-                shader = Shader.Find("Standard");
-            }
-
-            material = new Material(shader) { color = color };
-            AssetDatabase.CreateAsset(material, path);
-            return material;
-        }
-
-        private static void SetReference(UnityEngine.Object target, string fieldName, UnityEngine.Object value)
-        {
-            var serialized = new SerializedObject(target);
-            SerializedProperty property = serialized.FindProperty(fieldName);
-            if (property == null)
-            {
-                Debug.LogError($"[GreyboxSceneBuilder] {target.GetType().Name}.{fieldName} 필드를 찾을 수 없습니다.", target);
-                return;
-            }
-
-            property.objectReferenceValue = value;
-            serialized.ApplyModifiedPropertiesWithoutUndo();
-        }
-
-        private static void SetString(UnityEngine.Object target, string fieldName, string value)
-        {
-            var serialized = new SerializedObject(target);
-            SerializedProperty property = serialized.FindProperty(fieldName);
-            if (property == null)
-            {
-                Debug.LogError($"[GreyboxSceneBuilder] {target.GetType().Name}.{fieldName} 필드를 찾을 수 없습니다.", target);
-                return;
-            }
-
-            property.stringValue = value;
-            serialized.ApplyModifiedPropertiesWithoutUndo();
-        }
-
-        private static void AddToBuildSettings(string scenePath)
-        {
-            EditorBuildSettingsScene[] scenes = EditorBuildSettings.scenes;
-            if (scenes.Any(s => s.path == scenePath))
-            {
-                return;
-            }
-
-            EditorBuildSettings.scenes = scenes.Append(new EditorBuildSettingsScene(scenePath, true)).ToArray();
+            SceneBuildUtility.SetReference(bootstrap, "_playerInput", input);
         }
     }
 }
