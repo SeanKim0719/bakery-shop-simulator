@@ -274,6 +274,11 @@ namespace BakeryShop.Events
 - `TrySettle`의 순서: ① `Settlement`로 바꾸고 `DayPhaseChanged` 발행 ② 등록된 `IDayEndStep`을 `order`가 작은 것부터 실행 (같으면 등록한 순서) ③ `Day`를 1 올림 ④ `DayAdvanced` 발행. 모두 한 호출 안에서 동기적으로 끝난다. 세이브(M6)는 `DayAdvanced`를 받아 저장한다.
 - 정산 단계의 `DayPhaseChanged.Day`는 끝난 날이고, 다음 날 준비 단계의 `Day`는 새 날이다.
 - `SetShopEmptyCheck`를 부르지 않았으면 항상 비어 있는 것으로 본다.
+- `Begin`이 발행하는 `DayPhaseChanged`는 `Previous`와 `Current`가 모두 `Preparation`이다 (게임 시작과 불러오기 직후의 "지금 준비 단계다"라는 알림).
+- `Begin`보다 먼저 `TryOpenShop` · `Tick` · `TrySettle` · `StartNextDay`를 부르면 `InvalidOperationException`이다. 구독이 끝나기 전에 단계가 바뀌면 뷰가 알림을 놓치므로, 부트스트랩의 순서 실수를 바로 드러낸다. `Begin`을 두 번 불러도 예외다.
+- `RestoreDay`는 `Begin`보다 먼저만 부를 수 있고 이벤트를 발행하지 않는다. 1보다 작은 날짜는 `ArgumentOutOfRangeException`.
+- 하루 마무리 단계가 실행되는 동안에는 `Day`가 아직 끝난 날이고 `Phase`는 `Settlement`다. `DayAdvanced`의 구독자가 `Day`를 읽으면 새 날이다.
+- 하루 마무리 단계 안에서 `StartNextDay`나 `AddDayEndStep`을 부르면 `InvalidOperationException`이다. 같은 단계 객체를 두 번 등록하면 `ArgumentException`이다.
 
 **테스트**
 
@@ -286,7 +291,11 @@ namespace BakeryShop.Events
 - `TrySettle`이 하루 마무리 단계를 `order` 순서로 실행하고(등록 순서를 뒤섞어도), 단계가 받은 `day`는 끝난 날이다
 - `TrySettle` 뒤 `Day`가 1 늘고 `DayAdvanced`가 발행된다
 - `StartNextDay` 뒤 `Preparation`이고 시계가 개점 시각이다
-- 이틀을 연속으로 돌려도 순서가 유지된다
+- 이틀을 연속으로 돌려도 순서가 유지된다 (이벤트와 단계의 전체 순서를 한 목록으로 비교)
+- `order`가 같은 단계는 등록한 순서대로 실행된다
+- 단계 안에서 본 `Day`는 끝난 날이고, `DayAdvanced` 구독자가 본 `Day`는 새 날이다
+- `Begin` 전의 명령, 두 번째 `Begin`, `Begin` 뒤의 `RestoreDay`는 예외를 던진다
+- `RestoreDay(7)` 뒤 `Begin`은 7일차 준비 단계를 알린다
 
 **의존**: M2-01, M2-03
 
