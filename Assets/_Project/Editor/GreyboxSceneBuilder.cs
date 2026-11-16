@@ -1,14 +1,13 @@
 using System.IO;
 using BakeryShop.Core;
+using BakeryShop.Data;
 using BakeryShop.Interaction;
 using BakeryShop.Player;
-using BakeryShop.UI;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace BakeryShop.EditorTools
 {
@@ -45,13 +44,20 @@ namespace BakeryShop.EditorTools
                 return;
             }
 
+            string uiProblem = ShopUiBuilder.CheckPrerequisites();
+            if (uiProblem != null)
+            {
+                EditorUtility.DisplayDialog("그레이박스 씬", uiProblem, "확인");
+                return;
+            }
+
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
             CreateLight();
             BuildEnvironment();
             BuildBoxes();
             PlayerRig player = PlayerRigBuilder.Build("Player", actions, PlayerSpawn, 0f);
-            BuildHud(player.Interactor);
+            ShopUiBuilder.BuildPromptOnly(player.Interactor);
             BuildBootstrap(player.Input);
 
             EditorSceneManager.SaveScene(scene, ScenePath);
@@ -122,43 +128,19 @@ namespace BakeryShop.EditorTools
             }
         }
 
-        // 조준점과 "[E] 행동" 안내. 매장 씬도 M2-09에서 HUD가 생기기 전까지 이것을 쓴다.
-        internal static void BuildHud(Interactor interactor)
-        {
-            var canvasObject = new GameObject("HUD", typeof(Canvas), typeof(CanvasScaler));
-            canvasObject.GetComponent<Canvas>().renderMode = RenderMode.ScreenSpaceOverlay;
-            var scaler = canvasObject.GetComponent<CanvasScaler>();
-            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920f, 1080f);
-            scaler.matchWidthOrHeight = 0.5f;
-
-            var crosshair = new GameObject("Crosshair", typeof(RectTransform), typeof(Image));
-            crosshair.transform.SetParent(canvasObject.transform, false);
-            var crosshairRect = (RectTransform)crosshair.transform;
-            crosshairRect.sizeDelta = new Vector2(6f, 6f);
-            crosshair.GetComponent<Image>().raycastTarget = false;
-
-            var promptObject = new GameObject("InteractionPrompt", typeof(RectTransform), typeof(Text), typeof(Shadow));
-            promptObject.transform.SetParent(canvasObject.transform, false);
-            var promptRect = (RectTransform)promptObject.transform;
-            promptRect.sizeDelta = new Vector2(800f, 60f);
-            promptRect.anchoredPosition = new Vector2(0f, -80f);
-            var label = promptObject.GetComponent<Text>();
-            label.fontSize = 30;
-            label.alignment = TextAnchor.MiddleCenter;
-            label.color = Color.white;
-            label.raycastTarget = false;
-            label.text = string.Empty;
-
-            var hud = canvasObject.AddComponent<InteractionPromptHUD>();
-            SceneBuildUtility.SetReference(hud, "_interactor", interactor);
-            SceneBuildUtility.SetReference(hud, "_label", label);
-        }
-
         private static void BuildBootstrap(PlayerInputReader input)
         {
             var bootstrap = new GameObject("[Bootstrap]").AddComponent<GameBootstrap>();
             SceneBuildUtility.SetReference(bootstrap, "_playerInput", input);
+
+            // 부트스트랩은 콘텐츠가 있어야 시스템을 만든다 (M2-09부터). 이 씬에는 매장 배치와 패널이 없으므로 나머지는 비워 둔다.
+            var content = AssetDatabase.LoadAssetAtPath<ContentDatabase>(ContentImporter.DatabasePath);
+            if (content == null)
+            {
+                Debug.LogWarning("[GreyboxSceneBuilder] 콘텐츠 에셋이 없습니다. 메뉴 BakeryShop > 콘텐츠 가져오기를 실행한 뒤 씬을 다시 만드세요.");
+            }
+
+            SceneBuildUtility.SetReference(bootstrap, "_content", content);
         }
     }
 }

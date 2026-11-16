@@ -4,6 +4,8 @@
     "references": [
         "BakeryShop.Runtime",
         "BakeryShop.Editor",
+        "Unity.TextMeshPro",
+        "Unity.InputSystem",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

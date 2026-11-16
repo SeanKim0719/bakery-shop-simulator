@@ -2,8 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using BakeryShop.Core;
+using BakeryShop.Data;
 using BakeryShop.Interaction;
+using BakeryShop.UI;
 using BakeryShop.World;
+using TMPro;
 using Unity.AI.Navigation;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -69,6 +72,18 @@ namespace BakeryShop.EditorTools
                 return "입력 에셋을 찾을 수 없습니다.\n" + InputActionsPath;
             }
 
+            var content = AssetDatabase.LoadAssetAtPath<ContentDatabase>(ContentImporter.DatabasePath);
+            if (content == null)
+            {
+                return "콘텐츠 에셋이 없습니다. 메뉴 BakeryShop > 콘텐츠 가져오기를 먼저 실행하세요.\n" + ContentImporter.DatabasePath;
+            }
+
+            string uiProblem = ShopUiBuilder.CheckPrerequisites();
+            if (uiProblem != null)
+            {
+                return uiProblem;
+            }
+
             ShopBlueprint blueprint;
             try
             {
@@ -87,18 +102,23 @@ namespace BakeryShop.EditorTools
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
             BuildEnvironment(blueprint, playerLayer, customerLayer, itemLayer);
-            BuildFurniture(blueprint);
-            BuildPoints(blueprint);
+            Transform furniture = BuildFurniture(blueprint);
+            ShopLayout layout = BuildPoints(blueprint);
             BuildTestBoxes(blueprint, itemLayer);
 
             PlayerRig player = PlayerRigBuilder.Build("[Player]", actions, blueprint.PlayerStart, 0f);
             SceneBuildUtility.SetLayerRecursively(player.Root, playerLayer);
 
-            // HUD는 M2-09에서 만든다. 그때까지는 M1의 조준점과 안내만 띄운다.
-            GreyboxSceneBuilder.BuildHud(player.Interactor);
+            ShopUi ui = ShopUiBuilder.Build(player.Interactor);
+            BuildSign(blueprint, furniture, ShopUiBuilder.EnsureUiFont());
 
-            var bootstrap = new GameObject("[Bootstrap]").AddComponent<GameBootstrap>();
+            var bootstrapObject = new GameObject("[Bootstrap]");
+            var bootstrap = bootstrapObject.AddComponent<GameBootstrap>();
+            bootstrapObject.AddComponent<DevCheats>();
+            SceneBuildUtility.SetReference(bootstrap, "_content", content);
             SceneBuildUtility.SetReference(bootstrap, "_playerInput", player.Input);
+            SceneBuildUtility.SetReference(bootstrap, "_panels", ui.Panels);
+            SceneBuildUtility.SetReference(bootstrap, "_layout", layout);
 
             Directory.CreateDirectory(Path.GetDirectoryName(ScenePath));
             EditorSceneManager.SaveScene(scene, ScenePath);
@@ -154,7 +174,7 @@ namespace BakeryShop.EditorTools
             }
         }
 
-        private static void BuildFurniture(ShopBlueprint blueprint)
+        private static Transform BuildFurniture(ShopBlueprint blueprint)
         {
             Transform parent = new GameObject("[Furniture]").transform;
             foreach (FurnitureBlueprint furniture in blueprint.Furniture)
@@ -172,9 +192,11 @@ namespace BakeryShop.EditorTools
                     SceneBuildUtility.CreateBlock(block.Name, root.transform, block.Center - furniture.Position, block.Size, material);
                 }
             }
+
+            return parent;
         }
 
-        private static void BuildPoints(ShopBlueprint blueprint)
+        private static ShopLayout BuildPoints(ShopBlueprint blueprint)
         {
             var layout = new GameObject("[Points]").AddComponent<ShopLayout>();
 
@@ -197,6 +219,43 @@ namespace BakeryShop.EditorTools
                 blueprint.QueuePoints,
                 shelves.ToArray());
             EditorUtility.SetDirty(layout);
+            return layout;
+        }
+
+        // 문 옆 벽의 영업 팻말. 실내에서 남쪽 벽을 바라보면 보이게, 글자가 북쪽(+z)을 향한다.
+        private static void BuildSign(ShopBlueprint blueprint, Transform furniture, UiFont uiFont)
+        {
+            const float height = 1.5f;
+            var boardSize = new Vector3(0.6f, 0.4f, 0.05f);
+
+            var root = new GameObject("sign.01");
+            root.transform.SetParent(furniture, false);
+            root.transform.localPosition = new Vector3(blueprint.SignPoint.x, height, blueprint.SignPoint.z);
+            root.AddComponent<FurnitureId>().SetId("sign.01");
+
+            GameObject board = SceneBuildUtility.CreateBlock("Board", root.transform, Vector3.zero, boardSize, SceneBuildUtility.GetOrCreateMaterial("Shop_Sign", new Color(0.75f, 0.25f, 0.2f)));
+            board.isStatic = false;
+
+            var labelObject = new GameObject("Label");
+            labelObject.transform.SetParent(root.transform, false);
+            labelObject.transform.localPosition = new Vector3(0f, 0f, boardSize.z * 0.5f + 0.005f);
+            labelObject.transform.localRotation = Quaternion.Euler(0f, 180f, 0f);
+
+            var label = labelObject.AddComponent<TextMeshPro>();
+            if (uiFont != null && uiFont.Font != null)
+            {
+                label.font = uiFont.Font;
+            }
+
+            label.rectTransform.sizeDelta = new Vector2(boardSize.x, boardSize.y);
+            label.fontSize = 1.2f;
+            label.alignment = TextAlignmentOptions.Center;
+            label.color = Color.white;
+            label.text = "준비 중";
+
+            var sign = root.AddComponent<OpenSign>();
+            SceneBuildUtility.SetReference(sign, "_label", label);
+            SceneBuildUtility.SetReference(sign, "_board", board.GetComponent<MeshRenderer>());
         }
 
         // 배송 지점에 박스 두 개를 놓아 둔다. 박스를 들고 매장을 가로질러 창고까지 가 보는 용도다.

@@ -84,6 +84,26 @@ namespace BakeryShop.EditorTools
             serialized.ApplyModifiedPropertiesWithoutUndo();
         }
 
+        /// <summary>참조의 배열 필드를 통째로 채운다.</summary>
+        public static void SetReferenceArray(UnityEngine.Object target, string fieldName, UnityEngine.Object[] values)
+        {
+            var serialized = new SerializedObject(target);
+            SerializedProperty property = serialized.FindProperty(fieldName);
+            if (property == null || !property.isArray)
+            {
+                Debug.LogError("[씬 빌더] " + target.GetType().Name + "." + fieldName + " 배열 필드를 찾을 수 없습니다.", target);
+                return;
+            }
+
+            property.arraySize = values.Length;
+            for (int i = 0; i < values.Length; i++)
+            {
+                property.GetArrayElementAtIndex(i).objectReferenceValue = values[i];
+            }
+
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
         public static void SetString(UnityEngine.Object target, string fieldName, string value)
         {
             var serialized = new SerializedObject(target);

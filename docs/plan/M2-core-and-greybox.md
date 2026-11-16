@@ -704,11 +704,12 @@ namespace BakeryShop.World
 
 **파일**
 
-- `Scripts/Core/GameComposer.cs`, `GameLoop.cs`, 수정: `GameBootstrap.cs`, `GameContext.cs`
+- `Scripts/Core/GameComposer.cs`, `GameLoop.cs`, `DevCheats.cs`, 수정: `GameBootstrap.cs`, `GameContext.cs`
 - `Scripts/World/OpenSign.cs`
-- `Scripts/UI/PanelHost.cs`, `HudView.cs`, `UiFont.cs`, `EventLogOverlay.cs`, 수정: `InteractionPromptHUD.cs` (TextMeshPro로 교체)
-- `Editor/ShopUiBuilder.cs`, 수정: `ShopSceneBuilder.cs` (팻말, UI, 부트스트랩 연결)
-- `Tests/EditMode/Core/GameComposerTests.cs`
+- `Scripts/UI/IPanel.cs`, `PanelHost.cs`, `HudView.cs`, `HudFormat.cs` (HUD의 글자를 만드는 순수 계산), `UiFont.cs`, `EventLogOverlay.cs`, 수정: `InteractionPromptHUD.cs` (TextMeshPro로 교체)
+- `Editor/ShopUiBuilder.cs`, 수정: `ShopSceneBuilder.cs` (팻말, UI, 부트스트랩 연결), `GreyboxSceneBuilder.cs` (TMP 안내, 콘텐츠 연결)
+- 수정: 런타임·에디터·테스트 asmdef에 `Unity.TextMeshPro` 참조
+- `Tests/EditMode/Core/GameComposerTests.cs`, `Tests/EditMode/UI/HudFormatTests.cs`
 
 **공개 API**
 
@@ -739,7 +740,8 @@ namespace BakeryShop.Core
     public static class GameComposer
     {
         public static GameContext Compose(ContentDatabase content, uint customerSeed, uint lootSeed);
-        public static void StartNewGame(GameContext context);    // 시작 자금 등 초기 상태를 채운다
+        public static void StartNewGame(GameContext context);    // 시작 자금 등 초기 상태를 채운다. 이벤트를 발행하지 않는다
+        public static uint LootSeedFor(uint seed);               // 시드 하나에서 박스용 시드를 만든다 (항상 다른 값)
     }
 
     /// <summary>한 프레임의 갱신 순서. 01 문서의 "갱신 순서"와 같다.</summary>
@@ -772,21 +774,33 @@ namespace BakeryShop.UI
 **규칙**
 
 - `GameBootstrap.Awake`: `Compose` → `StartNewGame` → 씬 참조 채우기 → `IContextConsumer.Init` → `Day.Begin()`. `Update`는 `GameLoop.Tick(context, Time.deltaTime)` 한 줄이다.
+- `IContextConsumer.Init`은 부트스트랩의 `Awake`에서 불린다. 그 시점에 자신의 `Awake`와 `OnEnable`은 아직 실행되지 않았을 수 있으므로, 구독과 첫 화면 갱신을 `Init` 안에서 한다. 해제는 `OnDestroy`에서 한다.
+- 난수 시드는 실행할 때마다 다르고 콘솔에 찍힌다. `GameBootstrap`의 `Fixed Seed`에 그 값을 넣으면 같은 수열로 다시 실행한다 (버그 재현용).
+- 에디터와 개발 빌드에서는 시작할 때 `ContentValidator`를 한 번 돌려 문제를 콘솔에 오류로 남긴다.
+- `GameBootstrap`의 `_panels`와 `_layout`은 비워 둘 수 있다 (1주차 그레이박스 씬에는 없다). `_content`와 `_playerInput`은 반드시 있어야 한다.
 - `GameLoop.Tick`의 M2 시점 순서: `Time.Advance` → `Day.Tick`. 이후 작업이 [01 문서](../design/01-runtime-structure.md#갱신-순서-tick)의 순서대로 줄을 추가한다.
 - `OpenSign`: 준비 단계에 빈손으로 바라보면 `[E] 영업 시작`. E를 누르면 `Day.TryOpenShop()`. 영업 중에는 팻말이 "영업 중" 면으로 돌아가 있고 안내가 없다. 다음 날 준비 단계에 "준비 중" 면으로 돌아온다.
 - `PanelHost.Open`: 입력 모드를 UI로, 커서를 푼다. `Close`: 입력 모드를 게임으로, 커서를 잠근다. 입력 모드를 바꾸는 코드는 여기 한 곳뿐이다.
 - Esc: `PanelHost.HandleEscape()`가 `false`일 때만 M1의 임시 동작(커서 풀기)을 한다. 일시정지 메뉴는 M6-03에서 만든다.
 - `HudView`의 M2 시점 항목: 날짜와 단계, 시계, 돈, 평판 별, 레벨과 경험치 막대, 조준점과 안내. 갱신 방식은 [10 문서의 HUD 표](../design/10-ui.md#hud)를 따른다. 시계는 `HH:MM`으로 10분 단위까지만 바뀌게 표시한다 (분 단위로 바뀌면 너무 빨리 깜빡인다).
-- `UiFont`: UI가 쓰는 TMP 글꼴 에셋 하나를 들고 있는 ScriptableObject. `ShopUiBuilder`가 만드는 모든 텍스트가 이 글꼴을 쓴다.
+- `UiFont`: UI가 쓰는 TMP 글꼴 에셋 하나를 들고 있는 ScriptableObject (`Art/Fonts/UiFont.asset`). `ShopUiBuilder`가 만드는 모든 텍스트가 이 글꼴을 쓴다.
+- `ShopUiBuilder.EnsureUiFont`: `Art/Fonts`에서 TMP 글꼴 에셋을 찾아 연결한다. 없고 글꼴 파일(.otf/.ttf)만 있으면 그 파일로 동적 TMP 글꼴 에셋을 만든다. 글꼴이 하나도 없으면 경고를 남기고 TMP의 기본 글꼴을 쓴다 (한글이 □로 보인다).
+- TMP의 기본 리소스가 없으면 씬 빌더가 씬을 만들기 전에 멈추고 무엇을 해야 하는지 알려 준다.
+- 평판은 별 글자 대신 반 칸짜리 막대 10개로 그린다 (별 하나 = 두 칸). 글꼴에 반쪽 별 글자가 없어도 반 개 단위를 보여줄 수 있다.
+- HUD의 글자를 만드는 계산(`HudFormat`: 날짜 줄, 시계, 경험치 줄과 막대, 켜진 칸 수)은 `HudView`에서 떼어 테스트한다.
 - `EventLogOverlay`: 개발 빌드와 에디터에서 F3으로 켜고 끈다. `EventBus.Trace`를 받아 최근 이벤트 20개를 `시각  이벤트 이름  내용`으로 보여준다. 트러블슈팅에서 "무슨 순서로 무엇이 일어났는지"를 보는 도구다.
 - 개발용 단축키 (에디터와 개발 빌드에서만): F5 = 영업 시계를 폐점 1분 전으로, F6 = 돈 +100,000, F7 = 경험치 +50. `DevCheats` 컴포넌트 하나에 모은다.
+- F5는 시계 값만 고쳐 쓰지 않고 `GameLoop.Tick`을 빠르게 반복한다. 건너뛴 시간 동안의 일(이후의 오븐, 손님)도 실제로 흘러간 것처럼 처리된다.
+- `EventLogOverlay`는 화면이 꺼져 있어도 기록한다. 문제가 생긴 뒤에 F3을 눌러도 직전의 흐름이 보인다.
+- 1주차 그레이박스 씬(`Greybox_Week1`)은 이 작업 뒤에 메뉴로 다시 만들어야 한다 (부트스트랩이 콘텐츠를 요구하고, 안내 글자가 TMP로 바뀐다). 매장 씬이 그 역할을 대신하므로 다시 만들지 않고 두어도 된다.
 
 **사용자가 준비할 것** (PR을 받기 전에)
 
 1. **Window → TextMeshPro → Import TMP Essential Resources**를 실행한다.
 2. [Pretendard](https://github.com/orioncactus/pretendard) 글꼴(OFL 라이선스)의 `Pretendard-Regular.otf`, `Pretendard-Bold.otf`를 받아 `Assets/_Project/Art/Fonts/`에 넣는다.
-3. 글꼴 파일을 우클릭 → **Create → TextMeshPro → Font Asset**. 만들어진 에셋의 Atlas Population Mode를 **Dynamic**으로 둔다 (한글을 쓰는 순간 필요한 글자만 채운다).
-4. `Assets/_Project/Art/Fonts/OFL.txt`로 라이선스 파일을 함께 넣는다.
+3. `Assets/_Project/Art/Fonts/OFL.txt`로 라이선스 파일을 함께 넣는다.
+
+TMP 글꼴 에셋은 씬 빌더가 글꼴 파일에서 만든다 (동적 아틀라스: 한글을 쓰는 순간 필요한 글자만 채운다). 자동으로 만들어지지 않으면 글꼴 파일을 우클릭 → **Create → TextMeshPro → Font Asset**으로 직접 만들고 빌더를 다시 실행한다.
 
 **테스트**
 
@@ -794,6 +808,10 @@ namespace BakeryShop.UI
 - `StartNewGame` 뒤 잔액이 시작 자금, 평판이 500, 레벨이 1이다
 - `GameLoop.Tick`을 영업 시간만큼 반복하면 단계가 `Closing`이 된다 (씬 없이 하루의 시간 흐름이 돈다)
 - 같은 시드로 두 번 만들면 두 난수의 첫 값이 같고, 손님용과 박스용의 값은 서로 다르다
+- 손님용 난수를 여러 번 써도 박스용 난수의 수열이 바뀌지 않는다
+- `StartNewGame`은 이벤트를 하나도 발행하지 않는다
+- 준비 단계에서는 `GameLoop.Tick`을 돌려도 영업 시계가 09:00이다. 일시정지 중에는 아무것도 움직이지 않는다
+- `HudFormat`: 날짜 줄, 시계의 10분 내림(549.9 → 09:00, 550 → 09:10), 경험치 줄과 막대(최고 레벨이면 MAX, 1), 켜진 칸 수
 
 **Unity에서 확인**
 
@@ -818,4 +836,4 @@ namespace BakeryShop.UI
 3. 팻말을 돌려 영업을 시작한다. 시계가 흐른다.
 4. 18:00이 되면 마감으로 바뀐다.
 
-EditMode 테스트는 M1의 46개에 약 100개가 더해진다. 태그: `v0.2-core`
+EditMode 테스트는 M1의 53개에 383개가 더해져 436개다. 태그: `v0.2-core`
