@@ -608,20 +608,31 @@ namespace BakeryShop.Economy
 
 **파일**
 
-- `Editor/ShopSceneBuilder.cs`, `Editor/ShopLayoutJson.cs`, `Editor/PlayerRigBuilder.cs` (M1의 `GreyboxSceneBuilder`에서 플레이어를 만드는 부분을 빼낸다)
-- `Scripts/World/FurnitureId.cs`, `Scripts/World/ShopLayout.cs`
+- `Editor/ShopSceneBuilder.cs`, `Editor/ShopLayoutJson.cs`, `Editor/ShopBlueprint.cs` (좌표 계산), `Editor/PlayerRigBuilder.cs`와 `Editor/SceneBuildUtility.cs` (M1의 `GreyboxSceneBuilder`에서 플레이어와 공용 도구를 빼낸다)
+- `Scripts/World/FurnitureId.cs`, `Scripts/World/ShopLayout.cs`, `Scripts/World/PhysicsLayers.cs`
+- `Tests/EditMode/World/ShopBlueprintTests.cs`
 - 원본 데이터: `Data/shop_layout.json` (이미 있다. 평면도 SVG도 이 파일에서 만든다)
 - 생성물: `Scenes/Shop.unity`
 
 **공개 API**
 
 ```csharp
-namespace BakeryShop.Editor
+namespace BakeryShop.EditorTools
 {
     public static class ShopSceneBuilder
     {
         [MenuItem("BakeryShop/매장 씬 만들기")]
         public static void Build();
+
+        /// <summary>확인 창 없이 만든다 (자동화용). 성공하면 null, 실패하면 이유.</summary>
+        public static string BuildWithoutPrompts();
+    }
+
+    /// <summary>shop_layout.json에서 "무엇을 어디에 놓을지"를 계산한 결과. 씬 기능을 쓰지 않는 순수한 계산이라 테스트한다.</summary>
+    public sealed class ShopBlueprint
+    {
+        public static ShopBlueprint Create(ShopLayoutJson layout);
+        // Environment(바닥·인도·벽), Boundaries(보이지 않는 벽), Furniture, NoWalkZones, Shelves, 지점들
     }
 }
 
@@ -650,12 +661,25 @@ namespace BakeryShop.World
 **규칙**
 
 - 씬의 구성은 [11 문서의 씬 구성](../design/11-shop-layout.md#씬-구성)을 따른다. 이 작업에서는 `[Bootstrap]`, `[Environment]`, `[Furniture]`, `[Points]`, `[Player]`만 만든다. 가구는 색이 다른 상자이고 `FurnitureId`만 붙인다. 기능 컴포넌트(`OvenView` 등)는 해당 작업에서 빌더에 추가한다.
-- 벽은 문 자리(x −3.0 ~ −1.4)를 비우고 만든다. 인도는 실외 바닥이다.
+- 좌표 계산(`ShopBlueprint`)과 오브젝트 만들기(`ShopSceneBuilder`)를 나눈다. 계산 쪽은 씬 없이 테스트한다: 문이 뚫려 있는지, 가구가 겹치지 않는지, 손님이 서는 자리가 가구나 직원 구역 안에 있지 않은지.
+- 벽은 문 자리(x −3.0 ~ −1.4)를 비우고 만든다. 문 위(높이 2.2 이상)는 벽으로 막는다. 벽은 실내 범위의 바깥쪽에 붙여서 실내가 정확히 `room`의 크기가 되게 한다.
+- 인도는 실외 바닥이다. 실내 바닥과 인도는 문턱(z = −6)에서 만나고 겹치지 않는다 (같은 높이의 두 면이 겹치면 깜빡인다).
+- 인도의 둘레에 보이지 않는 벽을 세운다. 플레이어가 인도 밖으로 걸어 나가 떨어지지 않게 한다.
+- 진열대는 상자 두 개로 만든다: 빵을 놓는 몸통(높이 0.9)과 손님 반대쪽의 뒤판(높이 1.2까지). 칸의 위치는 몸통의 윗면이다.
+- 배송 지점에 테스트용 박스 두 개를 놓는다 (박스를 들고 창고까지 가 보는 용도). 발주와 배송이 생기는 M3-03에서 뺀다.
+- HUD는 M2-09에서 만든다. 그때까지는 M1의 조준점과 안내(`GreyboxSceneBuilder.BuildHud`)를 쓴다.
 - 잠긴 가구(`unlockId`가 있는 가구)는 반투명 재질로 만든다. 잠금 동작은 M5-01에서 붙인다.
-- 레이어 `Player`, `Customer`, `Item`이 없으면 추가하고, `Player` × `Customer` 충돌을 끈다.
+- 레이어 `Player`, `Customer`, `Item`이 없으면 추가하고, `Player` × `Customer` 충돌을 끈다. 같은 규칙을 게임이 시작할 때도 한 번 적용한다 (`PhysicsLayers.ApplyCollisionRules`, M2-09의 부트스트랩이 부른다).
 - `NavMeshSurface`를 `[Environment]`에 붙이고, 주방과 계산 구역에는 "걸을 수 없음" `NavMeshModifierVolume`을 놓는다. NavMesh는 에셋으로 굽지 않고 씬이 시작될 때 한 번 만든다 (M4-04). 씬을 다시 만들어도 구운 데이터가 어긋나지 않는다.
 - 빌더를 다시 실행하면 씬을 처음부터 다시 만든다. 그레이박스 단계에서는 씬을 손으로 고치지 않고 빌더를 고친다.
 - 색: 진열대 주황, 오븐 붉은색, 창고 파랑, 계산대·작업대 회색, 바닥 밝은 베이지, 인도 밝은 회색. 평면도의 색과 맞춘다.
+
+**테스트**
+
+- 실제 `shop_layout.json`으로 만든 `ShopBlueprint`: 문이 뚫려 있고 나머지 남쪽 벽은 막혀 있다, 바닥과 인도가 겹치지 않는다, 가구가 실내에 있고 서로 겹치지 않는다, 잠긴 가구가 진열대 3·4와 오븐 2다, 직원 통로가 플레이어보다 넓다
+- 진열대: 칸이 3개이고 몸통의 윗면에 있다, 손님이 서는 자리가 바라보는 쪽이고 뒤판이 반대쪽이다
+- 지점: 플레이어 시작과 손님의 지점이 가구에서 떨어져 있다, 손님의 지점이 직원 구역 밖이다, 줄이 북쪽으로 뻗는다, 실외 지점이 인도 위다
+- 잘못된 배치(모르는 종류, 빠진 지점, 칸 정보가 없는 진열대, 중복 ID, 벽을 벗어난 문)는 `FormatException`
 
 **Unity에서 확인**
 
@@ -663,6 +687,10 @@ namespace BakeryShop.World
 - [ ] 플레이하면 플레이어가 (0, −4)에서 북쪽을 보고 시작한다.
 - [ ] 계산 자리 → 동쪽 통로 → 주방 → 오븐 1 앞까지 걸어서 갈 수 있다. 걸리는 시간을 잰다 (시뮬레이터의 `walk_to_oven` 가정값은 4초).
 - [ ] 문으로 나가 인도의 배송 지점까지 갈 수 있다. 배송 지점 → 창고 선반 앞까지 걸리는 시간을 잰다.
+- [ ] 배송 지점의 박스를 들고 창고 선반 앞까지 옮길 수 있다. 문과 통로에서 박스가 걸리지 않는다.
+- [ ] 인도의 끝까지 걸어가도 밖으로 떨어지지 않는다.
+- [ ] 잠긴 가구(진열대 3·4, 오븐 2)가 반투명으로 보인다.
+- [ ] M1의 그레이박스 씬 메뉴(**그레이박스 씬 만들기 (1주차)**)도 그대로 동작한다 (플레이어를 만드는 코드를 옮겼다).
 - [ ] 통로의 폭이 답답하지 않다 (계산 구역 입구, 주방 입구, 진열대 3·4 사이).
 - [ ] 가구에 올라타거나 틈에 끼이는 곳이 없다.
 - [ ] `NavMeshSurface`의 Bake를 눌러 보면(저장하지 않는다) 매장 구역과 인도만 파랗게 칠해지고, 문을 통해 이어져 있다.

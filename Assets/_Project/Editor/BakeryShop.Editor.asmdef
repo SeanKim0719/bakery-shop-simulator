@@ -4,6 +4,7 @@
     "references": [
         "BakeryShop.Runtime",
         "Unity.InputSystem",
+        "Unity.AI.Navigation",
         "UnityEngine.UI"
     ],
     "includePlatforms": [
