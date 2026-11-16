@@ -3,6 +3,7 @@
     "rootNamespace": "BakeryShop.Tests",
     "references": [
         "BakeryShop.Runtime",
+        "BakeryShop.Editor",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

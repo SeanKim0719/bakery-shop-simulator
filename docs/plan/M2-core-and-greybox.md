@@ -305,7 +305,7 @@ namespace BakeryShop.Events
 
 **파일**
 
-- `Scripts/Data/`: `Enums.cs`, `IngredientAmount.cs`, `IngredientData.cs`, `RecipeData.cs`, `ProductData.cs`, `LootTable.cs`, `CustomerProfile.cs`, `UnlockData.cs`, `GameConfig.cs`, `ContentDatabase.cs`, `ContentValidator.cs`, `ContentJson.cs`
+- `Scripts/Data/`: `Enums.cs`, `IngredientAmount.cs`, `ContentDefinition.cs`, `IngredientData.cs`, `RecipeData.cs`, `ProductData.cs`, `LootTable.cs`, `CustomerProfile.cs`, `UnlockData.cs`, `GameConfig.cs`, `ContentDatabase.cs`, `ContentValidator.cs`, `ContentJson.cs`
 - `Tests/EditMode/TestContent.cs` (테스트용 작은 콘텐츠)
 - `Tests/EditMode/Data/ContentDatabaseTests.cs`, `ContentValidatorTests.cs`
 
@@ -323,10 +323,15 @@ namespace BakeryShop.Data
     [Serializable] public struct LootEntry { public string IngredientId; public float Weight; public int Count; }
     [Serializable] public struct RecipeWeight { public string RecipeId; public float Weight; }
 
-    public sealed class RecipeData : ScriptableObject
+    /// <summary>모든 정의의 공통 부분.</summary>
+    public abstract class ContentDefinition : ScriptableObject
     {
         public string Id { get; }
         public string DisplayName { get; }
+    }
+
+    public sealed class RecipeData : ContentDefinition
+    {
         public IReadOnlyList<IngredientAmount> Ingredients { get; }
         public int Yield { get; }
         public int MarketPrice { get; }
@@ -368,12 +373,15 @@ namespace BakeryShop.Data
         public IReadOnlyList<CustomerProfile> CustomerProfiles { get; }
         public IReadOnlyList<UnlockData> Unlocks { get; }
 
-        public RecipeData Recipe(string id);                            // 없으면 예외
+        public RecipeData GetRecipe(string id);                         // 없으면 KeyNotFoundException
         public bool TryGetRecipe(string id, out RecipeData recipe);     // 세이브 복원처럼 없을 수 있을 때
-        // Ingredient, Product, LootTable, Unlock도 같은 두 가지 모양
+        // Ingredient, Product, LootTable, CustomerProfile, Unlock도 같은 두 가지 모양 (GetX / TryGetX)
 
         public RecipeData SecretRecipeFor(string keyIngredientId);      // 없으면 null
         public IReadOnlyList<IngredientData> ExperimentChoices { get; } // 발주 상품에 들어 있는 재료 (실험에서 고를 수 있는 재료)
+
+        /// <summary>에셋 파일 없이 메모리에만 만든다. TestContent와 임포터의 검증이 쓴다.</summary>
+        internal static ContentDatabase CreateInMemory(ContentJson json);
     }
 
     public static class ContentValidator
@@ -388,7 +396,12 @@ namespace BakeryShop.Data
 
 - 정의의 필드는 `[SerializeField] private`이고 읽기 전용 프로퍼티로만 내보낸다. 값을 쓰는 길은 `internal Apply(…Json)` 하나다 (임포터와 테스트가 쓴다).
 - `ContentJson.cs`에는 `content.json`의 모양을 그대로 옮긴 단순 클래스(`ContentJson`, `RecipeJson` …)를 둔다. 런타임 어셈블리에 두지만 게임 실행 중에는 쓰지 않는다.
-- `ContentDatabase`는 처음 조회할 때 `id → 정의` 딕셔너리를 만든다.
+- `ContentDatabase`는 처음 조회할 때 `id → 정의` 딕셔너리를 만든다. ID가 비었거나 중복된 항목은 색인에 넣지 않는다 (먼저 나온 것이 남고, 문제는 `ContentValidator`가 알린다).
+- 조회 메서드의 이름은 `GetRecipe` / `TryGetRecipe`로 통일한다. `LootTable(id)`처럼 타입과 같은 이름의 메서드를 피하기 위해서다.
+- `ContentJson`의 점 목록은 `CurvePoint[]`, 품질 배율은 `QualityMultiplierJson`(필드 세 개)이다. JSON의 `[[x, y], …]`를 `CurvePoint`로 바꾸는 일은 임포터(M2-06)의 변환기가 한다.
+- `"Rare"` 같은 enum 문자열을 읽지 못하면 `FormatException`이고, 메시지에 정의의 ID와 필드 이름이 들어간다.
+- `Apply`는 JSON 객체의 배열을 복사해서 가진다 (정의를 만든 뒤 JSON 객체를 고쳐도 정의가 바뀌지 않는다).
+- `Core/AssemblyInfo.cs`에 `InternalsVisibleTo("BakeryShop.Editor")`를 추가한다 (임포터가 `Apply`를 쓴다).
 - `ExperimentChoices`는 "`IngredientPack` 상품의 내용물에 들어 있는 재료"로 계산한다 (지금은 일반 재료 7종과 초콜릿). 목록을 코드에 적지 않는다.
 - `GameConfig`의 묶음 이름과 필드는 `content.json`의 `config`와 같다.
 
@@ -397,18 +410,19 @@ namespace BakeryShop.Data
 | 대상 | 확인 |
 | --- | --- |
 | 전체 | ID가 비어 있지 않고 중복되지 않는다 |
-| 레시피 | 재료 ID가 존재한다. 수량·개수·시세·굽는 시간이 0보다 크다 |
+| 레시피 | 재료가 하나 이상이고 ID가 존재한다. 수량·개수·시세·굽는 시간이 0보다 크다. `0 ≤ perfectWindowSeconds < burnAfterSeconds`. 보관 일수가 1 이상이다 |
 | 비밀 레시피 | 핵심 재료가 존재하고 재료 목록에 들어 있다. 핵심 재료 하나는 레시피 하나에만 쓰인다. 나머지 재료는 모두 `ExperimentChoices`에 있다 |
-| 상품 | 내용물의 재료 ID, 확률표 ID가 존재한다. 종류에 맞는 필드가 채워져 있다 |
-| 확률표 | 재료 ID가 존재한다. 가중치의 합이 0보다 크다. 천장이 보장할 항목(`pityMinRarity` 이상)이 하나 이상 있다 |
-| 손님 | 선호 목록의 레시피 ID가 존재한다. 레벨별 비중의 길이가 레벨 수와 같다. 가격 민감도의 x가 오름차순이다. 예산의 최소 ≤ 최대 |
-| 해금 | 레시피 라이선스의 대상 레시피가 존재하고 비밀 레시피가 아니다 |
-| 설정 | 레벨별 배열(`xpThresholds`, `rentByLevel`, `baseCountByLevel`)의 길이가 같다. 시작 레시피와 시작 재료의 ID가 존재한다 |
+| 상품 | 내용물의 재료 ID, 확률표 ID가 존재한다. 종류에 맞는 필드가 채워져 있다. 가격이 0보다 크고 필요 레벨이 1 ~ 레벨 수 안에 있다 |
+| 확률표 | 재료 ID가 존재한다. 가중치가 음수가 아니고 합이 0보다 크다. 뽑기 수와 천장 횟수가 0보다 크다. 천장이 보장할 항목(`pityMinRarity` 이상)이 하나 이상 있다 |
+| 손님 | 선호 목록의 레시피 ID가 존재한다. 레벨별 비중의 길이가 레벨 수와 같다. 가격 민감도에 점이 있고 x가 오름차순이다. 예산의 최소 ≤ 최대. 현금 비율이 0~1이다 |
+| 해금 | 레시피 라이선스의 대상 레시피가 존재하고 비밀 레시피가 아니다. 가구 해금의 대상이 비어 있지 않다. 가격과 필요 레벨의 범위 |
+| 설정 | 레벨별 배열(`xpThresholds`, `rentByLevel`, `baseCountByLevel`)의 길이가 같다. `xpThresholds`가 0에서 시작해 커진다. 시작 레시피(비밀 레시피 제외)와 시작 재료의 ID가 존재한다. 폐점이 개점보다 늦다. 시간대 곡선의 x가 오름차순이다. 가격 범위, 평판 범위 |
 
 **테스트**
 
 - `ContentDatabase`: ID로 찾기, 없는 ID는 예외, `TryGet`은 false, `SecretRecipeFor`, `ExperimentChoices`, `OtherIngredientCount`
 - `ContentValidator`: 올바른 `TestContent`는 문제 0개. 표의 항목마다 하나씩 깨뜨린 콘텐츠는 문제가 정확히 1개이고 문장에 해당 ID가 들어 있다
+- 원인 하나에 문제가 한 줄만 나오게 한다 (예: 핵심 재료의 ID가 틀렸으면 "나머지 재료" 검사는 건너뛴다)
 
 `TestContent`가 만드는 콘텐츠 (규칙 테스트 전체가 함께 쓴다):
 
@@ -430,7 +444,7 @@ namespace BakeryShop.Data
 
 **파일**
 
-- `Editor/ContentJsonReader.cs`, `Editor/ContentImporter.cs`
+- `Editor/ContentJsonReader.cs`, `Editor/ContentImporter.cs`, `Editor/ContentInspectors.cs` (읽기 전용 인스펙터)
 - `Packages/manifest.json`에 `com.unity.nuget.newtonsoft-json` 추가 (이미 다른 패키지의 의존으로 설치되어 있다. 직접 의존으로 올린다)
 - `Tests/EditMode/BakeryShop.Tests.EditMode.asmdef`에 `BakeryShop.Editor` 참조 추가
 - `Tests/EditMode/Data/ContentJsonReaderTests.cs`, `RealContentTests.cs`
@@ -439,7 +453,7 @@ namespace BakeryShop.Data
 **공개 API**
 
 ```csharp
-namespace BakeryShop.Editor
+namespace BakeryShop.EditorTools   // 에디터 어셈블리의 기존 네임스페이스
 {
     public static class ContentJsonReader
     {
@@ -457,6 +471,9 @@ namespace BakeryShop.Editor
         /// <summary>에셋 파일을 만들지 않고 메모리에만 데이터베이스를 만든다 (테스트용).</summary>
         public static ContentDatabase BuildInMemory(string jsonText);
 
+        /// <summary>BuildInMemory로 만든 것을 지운다. 에셋 파일에서 불러온 것은 건드리지 않는다.</summary>
+        public static void DestroyInMemory(ContentDatabase database);
+
         /// <summary>두 데이터베이스의 수치가 다른 곳을 문장으로 돌려준다.</summary>
         public static List<string> Diff(ContentDatabase expected, ContentDatabase actual);
     }
@@ -467,7 +484,12 @@ namespace BakeryShop.Editor
 
 - JSON 읽기는 Newtonsoft를 쓴다. `[[x, y], …]` 모양의 점 목록과 `{"Undercooked": 0.7, …}` 모양의 사전을 `JsonUtility`가 읽지 못하기 때문이다. 에디터 코드에서만 쓰고 런타임 어셈블리는 참조하지 않는다.
 - `Import`의 동작: ① JSON 읽기 ② 정의마다 `Generated/<종류>/<id>.asset`을 찾고, 없으면 만든다 ③ `Apply`로 수치를 덮어쓴다 (외형 필드는 그대로) ④ JSON에 없는 ID의 에셋은 지우지 않고 경고만 남긴다 ⑤ `ContentDatabase.asset`의 목록을 JSON 순서대로 다시 채운다 ⑥ `ContentValidator`를 실행해 문제를 콘솔에 오류로 출력한다 ⑦ 만든 수, 바꾼 수를 로그로 남긴다.
-- 에셋 파일 이름은 ID 그대로 쓴다 (`bread.croissant.asset`).
+- 에셋 파일 이름은 ID 그대로 쓴다 (`bread.croissant.asset`). 그래서 ID는 영어 소문자·숫자·밑줄·점만 허용하고, 어긋나면 에셋을 건드리기 전에 중단한다.
+- 에셋의 위치: `Generated/GameConfig.asset`, `Generated/ContentDatabase.asset`, `Generated/Ingredients/`, `Recipes/`, `Products/`, `LootTables/`, `CustomerProfiles/`, `Unlocks/`.
+- `content.json`에 모르는 키가 있으면 오류다 (`MissingMemberHandling.Error`). `marketPirce` 같은 오타가 조용히 무시되어 값이 0이 되는 일을 막는다.
+- 읽기와 enum 변환이 실패하면 에셋을 하나도 건드리지 않고 중단한다 (먼저 메모리에서 한 번 만들어 본다).
+- 수치가 그대로인 에셋은 저장 대상으로 표시하지 않는다. 가져오기를 다시 실행해도 Git에 변경이 생기지 않는다.
+- `Diff`는 `SerializedObject`로 직렬화된 수치 필드를 모두 훑어 비교한다. 필드를 코드에 하나씩 적지 않으므로 정의에 필드를 추가해도 비교가 따라온다. 오브젝트 참조(아이콘, 프리팹)는 비교하지 않는다.
 - 생성된 에셋의 인스펙터에서 수치 필드는 읽기 전용으로 보이게 한다 (커스텀 에디터에서 `GUI.enabled = false`). 외형 필드만 고칠 수 있다.
 
 **테스트**
@@ -475,6 +497,8 @@ namespace BakeryShop.Editor
 - `ContentJsonReader`: 점 목록이 `CurvePoint[]`가 된다
 - `ContentJsonReader`: 품질 배율 사전이 읽힌다
 - `ContentJsonReader`: 선택 필드(`keyIngredient`, `hint`, `lootTable`)가 없어도 읽힌다
+- `ContentJsonReader`: 모르는 키, 모양이 틀린 점(`[x, y, z]`), 깨진 JSON, 빈 글은 `FormatException`이다
+- `RealContent`: 같은 JSON으로 두 번 만든 데이터베이스의 `Diff`가 비어 있다. 시세 하나를 바꾸면 그 한 줄만 나온다. 해금 하나를 빼면 그 ID가 나온다
 - `RealContent`: 실제 `content.json`으로 만든 데이터베이스가 `ContentValidator`를 통과한다
 - `RealContent`: `Data/Generated/ContentDatabase.asset`이 실제 `content.json`과 수치가 같다 (`Diff`가 비어 있다). JSON을 고치고 가져오기를 잊으면 이 테스트가 실패한다
 - `RealContent`: 모든 레시피의 한 판 매출이 재료비보다 크다 (핵심 재료 제외)
