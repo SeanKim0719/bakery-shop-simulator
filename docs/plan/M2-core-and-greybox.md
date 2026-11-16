@@ -121,9 +121,12 @@ namespace BakeryShop.Data
 
 - xorshift32: `x ^= x << 13; x ^= x >> 17; x ^= x << 5;`. 시드나 복원값이 0이면 `0x9E3779B9`로 바꾼다 (0에서는 수열이 멈춘다).
 - `NextFloat` = `(NextUInt() >> 8) × 2⁻²⁴`. 1.0이 나오지 않는다.
-- `PickWeighted`: `x = NextFloat() × 합`, 앞에서부터 가중치를 더해 가며 `x < 누적`인 첫 항목. 시뮬레이터의 `pick_weighted`와 같은 규칙이다. 가중치가 0인 항목은 뽑히지 않는다.
+- `PickWeighted`: `x = NextFloat() × 합`, 앞에서부터 가중치를 더해 가며 `x < 누적`인 첫 항목. 시뮬레이터의 `pick_weighted`와 같은 규칙이다. 가중치가 0 이하인 항목은 뽑히지 않는다. 합이 0 이하이면 난수를 소비하지 않고 -1을 돌려준다.
+- `Chance`는 확률이 0 이하이거나 1 이상이어도 난수를 하나 소비한다 (확률 값을 바꿔도 그 뒤의 수열이 흔들리지 않게).
+- `Range`는 `maxInclusive < minInclusive`이면 `ArgumentException`을 던진다.
 - `Evaluate`: 첫 점보다 왼쪽은 첫 점의 y, 마지막 점보다 오른쪽은 마지막 점의 y, 그 사이는 직선 보간. 시뮬레이터의 `curve`와 같은 규칙이다.
-- `Mean`: 구간의 사다리꼴 적분을 길이로 나눈 값.
+- `Mean`: 구간의 사다리꼴 적분을 길이로 나눈 값. 구간이 점들의 범위를 벗어나면 양 끝의 y가 이어진다고 본다. `to <= from`이면 `from`에서의 값.
+- 점 목록이 비어 있으면 `ArgumentException`, null이면 `ArgumentNullException`.
 
 **테스트**
 
@@ -159,6 +162,8 @@ namespace BakeryShop.Core
 {
     public sealed class TimeService
     {
+        public const float MaxDeltaSeconds = 0.25f;
+
         public TimeService(int openMinutes, int closeMinutes, float openRealSeconds);
 
         public double SimTime { get; }            // 초. 일시정지가 아니면 항상 흐른다
@@ -170,7 +175,7 @@ namespace BakeryShop.Core
 
         public void Advance(float realDeltaSeconds);
         public void SetPaused(bool paused);
-        public void StartClock();                 // 개점: 개점 시각에서 흐르기 시작
+        public void StartClock();                 // 개점: 지금 자리에서 흐르기 시작 (하루의 시작에는 ResetClock이 개점 시각으로 돌려 둔다)
         public void StopClock();                  // 폐점: 그 자리에서 멈춤
         public void ResetClock();                 // 다음 날: 개점 시각으로 되돌리고 멈춤
         public void RestoreSimTime(double simTime);
@@ -183,7 +188,12 @@ namespace BakeryShop.Core
 - `Advance`의 입력이 음수이거나 NaN이면 0으로, 0.25초보다 크면 0.25초로 자른다 (창을 옮기거나 멈췄다 돌아왔을 때 시간이 한꺼번에 건너뛰지 않게).
 - 일시정지 중에는 `SimDelta`가 0이고 두 시계 모두 멈춘다.
 - 영업 시계는 `SimDelta × (폐점 − 개점) ÷ openRealSeconds`만큼 흐른다 (기본값으로 1초에 1.5분). 폐점 시각을 넘지 않는다.
-- `SimTime`은 `double`이다. `float`로는 몇 시간 뒤에 프레임 단위의 정밀도를 잃는다.
+- `SimTime`은 `double`이다. `float`로는 몇 시간 뒤에 프레임 단위의 정밀도를 잃는다 (36,000초 근처에서 한 칸이 0.0039초).
+- 영업 시계도 내부에서는 `double`로 쌓고, 읽을 때만 `float`로 돌려준다.
+- `SetPaused(true)`는 `SimDelta`를 바로 0으로 만든다 (같은 프레임에서 뒤에 읽는 코드가 시간을 더 흘리지 않게).
+- `ResetClock`은 `SimTime`을 건드리지 않는다. `SimTime`은 날이 바뀌어도 이어진다.
+- 생성자는 `closeMinutes <= openMinutes`이거나 `openRealSeconds`가 0 이하·NaN이면 `ArgumentException`을 던진다.
+- `RestoreSimTime`은 음수·NaN·무한대에 `ArgumentOutOfRangeException`을 던진다 (깨진 세이브를 조용히 받아들이지 않는다).
 
 **테스트**
 
@@ -195,6 +205,9 @@ namespace BakeryShop.Core
 - 1초를 한 번에 넘기면 0.25초만 흐른다
 - 음수와 NaN은 0으로 처리한다
 - `ResetClock` 뒤에는 개점 시각이고 멈춰 있다
+- 60fps로 하루를 보내도 영업 시계가 어긋나지 않는다 (폐점 1초 전에 1078.5분)
+- `RestoreSimTime(36000)` 뒤 1/60초를 흘리면 정확히 1/60초가 더해진다 (`double`인 이유의 회귀 테스트)
+- 잘못된 생성자 인자와 잘못된 `RestoreSimTime` 값은 예외를 던진다
 
 **의존**: M1
 
