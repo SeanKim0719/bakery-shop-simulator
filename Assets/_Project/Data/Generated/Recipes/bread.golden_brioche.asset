@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdef0a548fa64f7b870850215f0908bd, type: 3}
+  m_Name: bread.golden_brioche
+  m_EditorClassIdentifier: BakeryShop.Runtime::BakeryShop.Data.RecipeData
+  _id: bread.golden_brioche
+  _displayName: "\uD669\uAE08 \uBE0C\uB9AC\uC624\uC288"
+  _ingredients:
+  - IngredientId: ing.flour
+    Count: 2
+  - IngredientId: ing.egg
+    Count: 2
+  - IngredientId: ing.sugar
+    Count: 1
+  - IngredientId: ing.golden_butter
+    Count: 1
+  _yield: 4
+  _marketPrice: 15000
+  _bakeSeconds: 60
+  _perfectWindowSeconds: 8
+  _burnAfterSeconds: 30
+  _shelfLifeDays: 1
+  _isSecret: 1
+  _keyIngredientId: ing.golden_butter
+  _hint: "\uBC84\uD130\uAC00 \uC8FC\uC778\uACF5\uC778 \uBE75. \uB2EC\uAC40\uACFC \uC124\uD0D5\uC774 \uB109\uB109\uD788 \uB4E4\uC5B4\uAC04\uB2E4."
+  _icon: {fileID: 0}
+  _breadPrefab: {fileID: 0}

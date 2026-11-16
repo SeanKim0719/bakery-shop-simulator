@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bb054a23bb8f4ef48d4f98bc4f4f4f9e, type: 3}
+  m_Name: ing.milk
+  m_EditorClassIdentifier: BakeryShop.Runtime::BakeryShop.Data.IngredientData
+  _id: ing.milk
+  _displayName: "\uC6B0\uC720"
+  _rarity: 0
+  _resellPrice: 300
+  _icon: {fileID: 0}

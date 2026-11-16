@@ -1,0 +1,36 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdef0a548fa64f7b870850215f0908bd, type: 3}
+  m_Name: bread.choco_cornet
+  m_EditorClassIdentifier: BakeryShop.Runtime::BakeryShop.Data.RecipeData
+  _id: bread.choco_cornet
+  _displayName: "\uCD08\uCF54 \uC18C\uB77C\uBE75"
+  _ingredients:
+  - IngredientId: ing.flour
+    Count: 2
+  - IngredientId: ing.milk
+    Count: 1
+  - IngredientId: ing.sugar
+    Count: 1
+  - IngredientId: ing.chocolate
+    Count: 2
+  _yield: 6
+  _marketPrice: 3800
+  _bakeSeconds: 45
+  _perfectWindowSeconds: 8
+  _burnAfterSeconds: 30
+  _shelfLifeDays: 1
+  _isSecret: 0
+  _keyIngredientId: 
+  _hint: 
+  _icon: {fileID: 0}
+  _breadPrefab: {fileID: 0}

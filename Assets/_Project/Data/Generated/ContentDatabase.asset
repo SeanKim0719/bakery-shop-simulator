@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e4678d2b9dc46948a62ccd5d840653b, type: 3}
+  m_Name: ContentDatabase
+  m_EditorClassIdentifier: BakeryShop.Runtime::BakeryShop.Data.ContentDatabase
+  _config: {fileID: 11400000, guid: e9890b48701db294aa173544c9a4fb96, type: 2}
+  _ingredients:
+  - {fileID: 11400000, guid: 6ea07e75dae3b6d4f80aedfdab913039, type: 2}
+  - {fileID: 11400000, guid: a3a84288f975def449fa2dc8bbd767cb, type: 2}
+  - {fileID: 11400000, guid: 8c2a9c1ff4e3db04d87eae6f7ab75c44, type: 2}
+  - {fileID: 11400000, guid: df921038653571049935088d05965481, type: 2}
+  - {fileID: 11400000, guid: c4bc6998beb28c04c9a0e8bb986dac28, type: 2}
+  - {fileID: 11400000, guid: 1eed94b267aa4484089e562696f41a43, type: 2}
+  - {fileID: 11400000, guid: 149b25b21e1c15f43afc9b571781c9ff, type: 2}
+  - {fileID: 11400000, guid: 8b0d56070b644114f8809a7f3894cf17, type: 2}
+  - {fileID: 11400000, guid: 0ae7008a1743bb54780b54a1316fd9a4, type: 2}
+  - {fileID: 11400000, guid: 8e925d783877814499a0808cea2c19b9, type: 2}
+  - {fileID: 11400000, guid: 132e4512493e3b2479cef6e2017baee6, type: 2}
+  - {fileID: 11400000, guid: 5b72ef808e4905d4ba7e1585f40eb4b8, type: 2}
+  _recipes:
+  - {fileID: 11400000, guid: 612b33d0c13a31145a92544aa125b791, type: 2}
+  - {fileID: 11400000, guid: aad9c33ca52d33347b007ef0fee6c06b, type: 2}
+  - {fileID: 11400000, guid: ec88a125f339aaf4f9a9a7c630dd1ef5, type: 2}
+  - {fileID: 11400000, guid: c3065cbba0d7ec64394bce33c5d1a442, type: 2}
+  - {fileID: 11400000, guid: db7df3c3252fa65439e32d079bc1a9ef, type: 2}
+  - {fileID: 11400000, guid: 1b60cd7f0b1ffe341b6433c0005ca288, type: 2}
+  - {fileID: 11400000, guid: 1bcd0757c67ec2d469e61fa39f1048e8, type: 2}
+  - {fileID: 11400000, guid: 3477ccdc386aaff42882ec09e846f093, type: 2}
+  - {fileID: 11400000, guid: a16c6d9185b9fd84bb34c8db21280f31, type: 2}
+  - {fileID: 11400000, guid: 564c4a6ec227a4a498bd144342b6ad70, type: 2}
+  _products:
+  - {fileID: 11400000, guid: 6155baa1d927b4e4f92af26bb84f65a5, type: 2}
+  - {fileID: 11400000, guid: 46b4a2c970fa89042b901ce941dd4487, type: 2}
+  - {fileID: 11400000, guid: 4e08f9a29d7d7d945a4b6de0005c2773, type: 2}
+  - {fileID: 11400000, guid: 251e25b2895cc514b9a4c07771d21b3c, type: 2}
+  - {fileID: 11400000, guid: 0a4b3049aa0e4614bbc1686ad8e3dc6c, type: 2}
+  - {fileID: 11400000, guid: efdb06c2833a906449293a3423cbc385, type: 2}
+  - {fileID: 11400000, guid: 380a82a413cccb647b4ac017c27d676a, type: 2}
+  - {fileID: 11400000, guid: ea4003ef10c367a4490e7e6fc1016cc3, type: 2}
+  - {fileID: 11400000, guid: e6aa48eddcba12742be8f22f9f8c11f5, type: 2}
+  - {fileID: 11400000, guid: ad6db84d160dfd74f91dcf6f7fc237dd, type: 2}
+  _lootTables:
+  - {fileID: 11400000, guid: af4352ad9ef48ad468acfd9e8f292eb8, type: 2}
+  - {fileID: 11400000, guid: 871f80652655cf341b124f93ec6a7386, type: 2}
+  _customerProfiles:
+  - {fileID: 11400000, guid: bead1753f8cac9e41995ef684812c914, type: 2}
+  - {fileID: 11400000, guid: 5f0ded09022779d4e9dd97e58c3281e0, type: 2}
+  - {fileID: 11400000, guid: 26fd53651cb6b714c9a5ade994f85e30, type: 2}
+  _unlocks:
+  - {fileID: 11400000, guid: 408151828a789564fbb5e33406c0ed74, type: 2}
+  - {fileID: 11400000, guid: 9fc6e3788f7a74744b649f4907ce205c, type: 2}
+  - {fileID: 11400000, guid: 1abc574110690c8498cb8b44773c48f8, type: 2}
+  - {fileID: 11400000, guid: ec473e0bc3d6b7840a3d1e18ecc77b92, type: 2}
+  - {fileID: 11400000, guid: 61b3860a7bb5b7d4da14bbe5e693c8d2, type: 2}
+  - {fileID: 11400000, guid: f9acf978827122348866963a958f4d9b, type: 2}
+  - {fileID: 11400000, guid: bc76796ed87c79141b3644294e756386, type: 2}
+  - {fileID: 11400000, guid: 22205eda4b83183458a3e8580e3ab93c, type: 2}
+  - {fileID: 11400000, guid: b6d92978b80224d4f8c88f61ad71b308, type: 2}

@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20702ca0c2034605a405157322281698, type: 3}
+  m_Name: product.box.premium
+  m_EditorClassIdentifier: BakeryShop.Runtime::BakeryShop.Data.ProductData
+  _id: product.box.premium
+  _displayName: "\uBA85\uC778\uC758 \uBBF8\uC2A4\uD130\uB9AC \uBC15\uC2A4"
+  _kind: 1
+  _cost: 35000
+  _requiredLevel: 4
+  _contents: []
+  _lootTableId: loot.premium
+  _boxPrefab: {fileID: 0}

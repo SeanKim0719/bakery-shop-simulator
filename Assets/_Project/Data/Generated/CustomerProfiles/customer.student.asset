@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4392ff4214f94e64aaa96ba734fe5607, type: 3}
+  m_Name: customer.student
+  m_EditorClassIdentifier: BakeryShop.Runtime::BakeryShop.Data.CustomerProfile
+  _id: customer.student
+  _displayName: "\uD559\uC0DD"
+  _spawnWeightByLevel:
+  - 5
+  - 5
+  - 4
+  - 4
+  - 4
+  _budgetMin: 3000
+  _budgetMax: 8000
+  _maxItems: 2
+  _patienceSeconds: 70
+  _cashRatio: 0.6
+  _priceSensitivity:
+  - X: 0.7
+    Y: 1
+  - X: 1
+    Y: 0.95
+  - X: 1.1
+    Y: 0.85
+  - X: 1.2
+    Y: 0.6
+  - X: 1.35
+    Y: 0.25
+  - X: 1.5
+    Y: 0.05
+  - X: 1.7
+    Y: 0
+  _preferences:
+  - RecipeId: bread.redbean
+    Weight: 5
+  - RecipeId: bread.saltbutter
+    Weight: 5
+  - RecipeId: bread.choco_cornet
+    Weight: 5
+  - RecipeId: bread.croissant
+    Weight: 3
+  - RecipeId: bread.white
+    Weight: 1
+  - RecipeId: bread.baguette
+    Weight: 0.5
+  - RecipeId: bread.almond_croissant
+    Weight: 2
+  - RecipeId: bread.matcha_redbean
+    Weight: 3
+  - RecipeId: bread.truffle_salt
+    Weight: 0.5
+  - RecipeId: bread.golden_brioche
+    Weight: 0.2
+  _defaultPreference: 1
+  _theftChance: 0
+  _messiness: 0
+  _prefabs: []

@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdef0a548fa64f7b870850215f0908bd, type: 3}
+  m_Name: bread.baguette
+  m_EditorClassIdentifier: BakeryShop.Runtime::BakeryShop.Data.RecipeData
+  _id: bread.baguette
+  _displayName: "\uBC14\uAC8C\uD2B8"
+  _ingredients:
+  - IngredientId: ing.flour
+    Count: 4
+  - IngredientId: ing.salt
+    Count: 1
+  _yield: 3
+  _marketPrice: 4500
+  _bakeSeconds: 65
+  _perfectWindowSeconds: 8
+  _burnAfterSeconds: 30
+  _shelfLifeDays: 2
+  _isSecret: 0
+  _keyIngredientId: 
+  _hint: 
+  _icon: {fileID: 0}
+  _breadPrefab: {fileID: 0}

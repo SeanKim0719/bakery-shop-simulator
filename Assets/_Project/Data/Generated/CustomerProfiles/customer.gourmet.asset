@@ -1,0 +1,65 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4392ff4214f94e64aaa96ba734fe5607, type: 3}
+  m_Name: customer.gourmet
+  m_EditorClassIdentifier: BakeryShop.Runtime::BakeryShop.Data.CustomerProfile
+  _id: customer.gourmet
+  _displayName: "\uBBF8\uC2DD\uAC00"
+  _spawnWeightByLevel:
+  - 0
+  - 0
+  - 1.5
+  - 2
+  - 2.5
+  _budgetMin: 20000
+  _budgetMax: 50000
+  _maxItems: 2
+  _patienceSeconds: 80
+  _cashRatio: 0.1
+  _priceSensitivity:
+  - X: 0.7
+    Y: 1
+  - X: 1
+    Y: 0.98
+  - X: 1.3
+    Y: 0.9
+  - X: 1.6
+    Y: 0.6
+  - X: 2
+    Y: 0.2
+  - X: 2.5
+    Y: 0
+  _preferences:
+  - RecipeId: bread.truffle_salt
+    Weight: 8
+  - RecipeId: bread.golden_brioche
+    Weight: 6
+  - RecipeId: bread.almond_croissant
+    Weight: 5
+  - RecipeId: bread.matcha_redbean
+    Weight: 5
+  - RecipeId: bread.baguette
+    Weight: 3
+  - RecipeId: bread.croissant
+    Weight: 2
+  - RecipeId: bread.saltbutter
+    Weight: 2
+  - RecipeId: bread.white
+    Weight: 1
+  - RecipeId: bread.redbean
+    Weight: 1
+  - RecipeId: bread.choco_cornet
+    Weight: 1
+  _defaultPreference: 1
+  _theftChance: 0
+  _messiness: 0
+  _prefabs: []

@@ -1,0 +1,56 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d347f70097eb41bb86a54f2ea6039027, type: 3}
+  m_Name: loot.basic
+  m_EditorClassIdentifier: BakeryShop.Runtime::BakeryShop.Data.LootTable
+  _id: loot.basic
+  _displayName: 
+  _rollsPerBox: 5
+  _entries:
+  - IngredientId: ing.flour
+    Weight: 14
+    Count: 2
+  - IngredientId: ing.butter
+    Weight: 12
+    Count: 1
+  - IngredientId: ing.sugar
+    Weight: 10
+    Count: 2
+  - IngredientId: ing.milk
+    Weight: 12
+    Count: 1
+  - IngredientId: ing.egg
+    Weight: 12
+    Count: 2
+  - IngredientId: ing.redbean
+    Weight: 10
+    Count: 1
+  - IngredientId: ing.salt
+    Weight: 8
+    Count: 2
+  - IngredientId: ing.chocolate
+    Weight: 9
+    Count: 1
+  - IngredientId: ing.almond
+    Weight: 8
+    Count: 1
+  - IngredientId: ing.matcha
+    Weight: 2.25
+    Count: 1
+  - IngredientId: ing.truffle_salt
+    Weight: 2.25
+    Count: 1
+  - IngredientId: ing.golden_butter
+    Weight: 0.5
+    Count: 1
+  _pityThreshold: 5
+  _pityMinRarity: 2

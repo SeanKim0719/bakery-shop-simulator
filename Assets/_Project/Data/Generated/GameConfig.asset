@@ -1,0 +1,104 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2098fae6025e41a4b94d9ee3a3847c1b, type: 3}
+  m_Name: GameConfig
+  m_EditorClassIdentifier: BakeryShop.Runtime::BakeryShop.Data.GameConfig
+  _day:
+    _openMinutes: 540
+    _closeMinutes: 1080
+    _openRealSeconds: 360
+    _spawnCurve:
+    - X: 540
+      Y: 0.6
+    - X: 600
+      Y: 0.8
+    - X: 660
+      Y: 1.2
+    - X: 720
+      Y: 1.6
+    - X: 780
+      Y: 1
+    - X: 840
+      Y: 0.7
+    - X: 900
+      Y: 0.8
+    - X: 960
+      Y: 1.2
+    - X: 1020
+      Y: 1.5
+    - X: 1080
+      Y: 1.5
+  _economy:
+    _startMoney: 50000
+    _moneyFloor: 25000
+    _rentByLevel: 401f000010270000983a0000204e0000a8610000i
+    _undercookedPriceMultiplier: 0.7
+    _normalPriceMultiplier: 1
+    _perfectPriceMultiplier: 1.2
+    _priceStep: 100
+    _priceMinRatio: 0.5
+    _priceMaxRatio: 2.5
+    _startTrays: 3
+    _startRecipes:
+    - bread.white
+    - bread.redbean
+    - bread.croissant
+    _startStorage:
+    - IngredientId: ing.flour
+      Count: 20
+    - IngredientId: ing.milk
+      Count: 6
+    - IngredientId: ing.egg
+      Count: 3
+    - IngredientId: ing.butter
+      Count: 9
+    - IngredientId: ing.redbean
+      Count: 6
+    - IngredientId: ing.sugar
+      Count: 3
+  _oven:
+    _minCollectProgress: 0.5
+  _shelf:
+    _slotsPerShelf: 3
+    _slotCapacity: 6
+  _customers:
+    _baseCountByLevel: 0c0000001000000014000000180000001c000000i
+    _maxConcurrent: 10
+    _queueSlots: 5
+    _reputationSpawnMin: 0.7
+    _reputationSpawnMax: 1.3
+    _dayOldPriceMultiplier: 0.7
+    _undercookedMultiplier: 0.6
+    _browseSecondsPerItem: 4
+    _aromaSeconds: 60
+    _aromaSpawnMultiplier: 1.4
+  _reputation:
+    _start: 500
+    _min: 0
+    _max: 1000
+    _saleCompleted: 1
+    _leftNoStock: -4
+    _leftTooExpensive: -2
+    _leftQueueTimeout: -10
+    _paymentComplaint: -5
+    _recipeDiscovered: 20
+  _progression:
+    _xpThresholds: 000000002800000082000000180100001c020000i
+    _xpPerBread: 1
+    _xpPerfectBonus: 1
+    _xpSecretBonus: 2
+    _xpDiscovery: 20
+    _xpDayComplete: 5
+    _demoGoalLevel: 5
+    _demoGoalSecretRecipes: 2
+  _delivery:
+    _seconds: 20
