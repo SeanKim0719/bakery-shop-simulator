@@ -11,7 +11,7 @@ MVP는 **레벨 1~5, 빵 10종(일반 6, 비밀 4), 오븐 2대, 진열대 4개,
 | 마일스톤 | 끝났을 때 되는 것 | 기간 | 태그 | 이슈 | 상태 |
 | --- | --- | --- | --- | --- | --- |
 | [M1. 조작과 상호작용](plan/M1-player-interaction.md) | 박스를 들고, 쌓고, 내려놓는다 | 0.5주 | `v0.1-movement` | [진행률](https://github.com/SeanKim0719/bakery-shop-simulator/milestone/1) | 코드와 Unity 확인 완료. 남은 것은 트러블슈팅 증거(GIF)와 태그 |
-| [M2. 코어와 매장 그레이박스](plan/M2-core-and-greybox.md) | 실제 배치의 매장에서 개점하면 시계가 흐르고 마감된다 | 2주 | `v0.2-core` | [진행률](https://github.com/SeanKim0719/bakery-shop-simulator/milestone/2) | 진행 중 (9개 중 6개 완료, M2-07 PR 검토 대기) |
+| [M2. 코어와 매장 그레이박스](plan/M2-core-and-greybox.md) | 실제 배치의 매장에서 개점하면 시계가 흐르고 마감된다 | 2주 | `v0.2-core` | [진행률](https://github.com/SeanKim0719/bakery-shop-simulator/milestone/2) | 진행 중 (9개 중 6개 완료, M2-07~09 PR이 Unity 확인 대기) |
 | [M3. 생산 루프](plan/M3-production-loop.md) | 발주 → 배송 → 굽기 → 진열 → 가격 | 2.5주 | `v0.3-production` | [진행률](https://github.com/SeanKim0719/bakery-shop-simulator/milestone/3) | 시작 전 |
 | [M4. 영업 루프](plan/M4-shop-loop.md) | 손님, 계산, 정산. 하루가 처음부터 끝까지 돈다 | 3주 | `v0.4-day-loop` | [진행률](https://github.com/SeanKim0719/bakery-shop-simulator/milestone/4) | 시작 전 |
 | [M5. 성장과 수집](plan/M5-growth-and-collection.md) | 해금, 미스터리 박스, 실험, 도감, 목표 리스트 | 2주 | `v0.5-growth` | [진행률](https://github.com/SeanKim0719/bakery-shop-simulator/milestone/5) | 시작 전 |
@@ -46,8 +46,8 @@ MVP는 **레벨 1~5, 빵 10종(일반 6, 비밀 4), 오븐 2대, 진열대 4개,
 - [x] M2-05 콘텐츠 정의와 데이터베이스 ([#11](https://github.com/SeanKim0719/bakery-shop-simulator/issues/11), [PR #54](https://github.com/SeanKim0719/bakery-shop-simulator/pull/54))
 - [x] M2-06 `content.json` 임포터 ([#12](https://github.com/SeanKim0719/bakery-shop-simulator/issues/12), [PR #55](https://github.com/SeanKim0719/bakery-shop-simulator/pull/55). 에셋 48개 생성, Unity에서 테스트 280개 통과)
 - [ ] M2-07 돈·평판·경험치 상태 ([#13](https://github.com/SeanKim0719/bakery-shop-simulator/issues/13), [PR #56](https://github.com/SeanKim0719/bakery-shop-simulator/pull/56) 검토 대기)
-- [ ] M2-08 매장 그레이박스 씬 ([#14](https://github.com/SeanKim0719/bakery-shop-simulator/issues/14))
-- [ ] M2-09 부트스트랩 확장, 팻말, HUD, 패널 호스트 ([#15](https://github.com/SeanKim0719/bakery-shop-simulator/issues/15))
+- [ ] M2-08 매장 그레이박스 씬 ([#14](https://github.com/SeanKim0719/bakery-shop-simulator/issues/14), [PR #57](https://github.com/SeanKim0719/bakery-shop-simulator/pull/57). 씬 빌더는 Unity에서 아직 실행하지 못함)
+- [ ] M2-09 부트스트랩 확장, 팻말, HUD, 패널 호스트 ([#15](https://github.com/SeanKim0719/bakery-shop-simulator/issues/15), [PR #58](https://github.com/SeanKim0719/bakery-shop-simulator/pull/58). Unity에서 아직 실행하지 못함. TMP 기본 리소스와 글꼴 준비 필요)
 - 완료 기준: 매장을 걸어 다니고, 팻말을 돌리면 시계가 09:00부터 흐르다가 18:00에 마감된다
 
 ## M3. 생산 루프
