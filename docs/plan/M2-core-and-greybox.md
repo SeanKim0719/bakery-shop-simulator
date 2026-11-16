@@ -25,8 +25,8 @@ flowchart LR
 **파일**
 
 - `Scripts/Core/EventBus.cs`
-- `Scripts/Events/DayEvents.cs` (이 작업에서는 파일과 네임스페이스만. 이벤트는 쓰는 작업에서 추가한다)
 - `Tests/EditMode/Core/EventBusTests.cs`
+- `Scripts/Events/` 폴더는 첫 이벤트가 생기는 M2-04에서 만든다 (빈 파일을 미리 두지 않는다)
 - 기존 테스트를 `Tests/EditMode/Player/`, `Tests/EditMode/Interaction/`으로 옮긴다
 
 **공개 API**
@@ -40,8 +40,10 @@ namespace BakeryShop.Core
         public void Unsubscribe<T>(Action<T> handler) where T : struct;
         public void Publish<T>(in T evt) where T : struct;
 
-        /// <summary>개발용. 발행되는 모든 이벤트를 받는다 (이벤트 로그 화면에서 사용).</summary>
+        /// <summary>개발용. 발행되는 모든 이벤트를 구독자보다 먼저 받는다 (이벤트 로그 화면에서 사용).</summary>
         public Action<Type, object> Trace;
+
+        public int SubscriberCount<T>() where T : struct;   // 테스트와 디버그용
     }
 }
 ```
@@ -64,7 +66,11 @@ namespace BakeryShop.Core
 - 같은 핸들러를 두 번 구독해도 한 번만 호출된다
 - 핸들러 안에서 자기 자신을 해제해도 나머지 핸들러가 호출된다
 - 핸들러 안에서 다른 이벤트를 발행하면 그 구독자도 호출된다
-- `Trace`가 타입과 값을 받는다
+- 핸들러 안에서 같은 타입을 다시 발행해도(중첩) 순서가 맞고, 그 안에서 해제해도 바깥 발행이 어긋나지 않는다
+- 발행 중에 해제된 핸들러는 그 발행에서 건너뛰고, 발행 중에 구독한 핸들러는 다음 발행부터 받는다
+- 핸들러가 예외를 던지면 밖으로 전달되고, 그 뒤의 발행은 정상으로 돈다
+- `Trace`가 타입과 값을 핸들러보다 먼저 받는다
+- null 핸들러는 예외다
 
 **의존**: M1
 
